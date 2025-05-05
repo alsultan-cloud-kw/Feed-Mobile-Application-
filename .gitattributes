@@ -1,0 +1,2 @@
+# This directive tells Git to handle line endings automatically based on the operating system, promoting consistency across different environments.
+* text=auto
