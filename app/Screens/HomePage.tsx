@@ -3571,6 +3571,271 @@
 
 /******************************* */
 
+// import React, { useCallback } from "react";
+// import {
+//   View,
+//   FlatList,
+//   RefreshControl,
+//   useWindowDimensions,
+//   Platform,
+// } from "react-native";
+// import { useQuery } from "@tanstack/react-query";
+// import axios from "axios";
+// import { MotiView } from "moti";
+// import { HomePageData } from "../types/home";
+// import { ErrorView } from "../Components/common/ErrorView";
+// import DealOfTheDay from "../Components/Home/DealOfTheDay";
+// import GridOfPopularProducts from "../Components/Home/GridOfPopularProducts";
+// import FeaturedProducts from "../Components/Home/FeaturedProducts";
+// import CategoriesSection from "../Components/Home/CategoriesSection";
+// import BlogSection from "../Components/Home/BlogSection";
+// import BannerSection from "../Components/Home/BannerSection";
+// import AboutSection from "../Components/Home/AboutSection";
+
+// const fetchHomepageData = async (): Promise<HomePageData> => {
+//   const [banners, products, blogs, categories] = await Promise.all([
+//     axios.get(
+//       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/banners?populate=*`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BANNER}`,
+//         },
+//       }
+//     ),
+//     axios.get(
+//       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/products?populate=*`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_PRODUCTS}`,
+//         },
+//       }
+//     ),
+//     axios.get(
+//       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/blog-posts?populate=*`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BLOG}`,
+//         },
+//       }
+//     ),
+//     axios.get(
+//       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/categories?populate=*`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_CATEGORIES}`,
+//         },
+//       }
+//     ),
+//   ]);
+
+//   return {
+//     banners: banners.data.data,
+//     products: products.data.data,
+//     blogs: blogs.data.data,
+//     categories: categories.data.data,
+//   };
+// };
+
+// const SkeletonShimmer = ({ children, delay = 0 }) => (
+//   <MotiView
+//     from={{ opacity: 0.5 }}
+//     animate={{ opacity: 1 }}
+//     transition={{
+//       type: "timing",
+//       duration: 1000,
+//       loop: true,
+//       repeatReverse: true,
+//       delay,
+//     }}
+//   >
+//     {children}
+//   </MotiView>
+// );
+
+// const HomepageSkeleton = () => {
+//   const { width } = useWindowDimensions();
+//   const BANNER_HEIGHT = width * 0.5;
+//   const CATEGORY_SIZE = width * 0.2;
+//   const PRODUCT_WIDTH = (width - 48) / 2;
+
+//   return (
+//     <View style={{ flex: 1, backgroundColor: "#F9FAFB", padding: 16 }}>
+//       <SkeletonShimmer>
+//         <View
+//           style={{
+//             height: BANNER_HEIGHT,
+//             backgroundColor: "#E5E7EB",
+//             borderRadius: 16,
+//             marginBottom: 24,
+//             overflow: Platform.OS === "android" ? "hidden" : "visible",
+//             ...Platform.select({
+//               ios: {
+//                 shadowColor: "#000",
+//                 shadowOffset: { width: 0, height: 2 },
+//                 shadowOpacity: 0.05,
+//                 shadowRadius: 4,
+//               },
+//               android: {
+//                 elevation: 3,
+//               },
+//             }),
+//           }}
+//         />
+//       </SkeletonShimmer>
+
+//       <View style={{ flexDirection: "row", marginBottom: 24, gap: 12 }}>
+//         {[...Array(4)].map((_, i) => (
+//           <SkeletonShimmer key={i} delay={i * 100}>
+//             <View
+//               style={{
+//                 width: CATEGORY_SIZE,
+//                 height: CATEGORY_SIZE,
+//                 backgroundColor: "#E5E7EB",
+//                 borderRadius: CATEGORY_SIZE / 2,
+//               }}
+//             />
+//           </SkeletonShimmer>
+//         ))}
+//       </View>
+
+//       <View
+//         style={{
+//           flexDirection: "row",
+//           flexWrap: "wrap",
+//           gap: 16,
+//           justifyContent: "space-between",
+//         }}
+//       >
+//         {[...Array(6)].map((_, i) => (
+//           <SkeletonShimmer key={i} delay={i * 50}>
+//             <View
+//               style={{
+//                 width: PRODUCT_WIDTH,
+//                 height: PRODUCT_WIDTH * 1.4,
+//                 backgroundColor: "#E5E7EB",
+//                 borderRadius: 12,
+//                 overflow: "hidden",
+//               }}
+//             >
+//               <View
+//                 style={{
+//                   height: "60%",
+//                   backgroundColor: "#D1D5DB",
+//                 }}
+//               />
+//               <View style={{ padding: 12, gap: 8 }}>
+//                 <View
+//                   style={{
+//                     height: 12,
+//                     backgroundColor: "#D1D5DB",
+//                     borderRadius: 6,
+//                     width: "80%",
+//                   }}
+//                 />
+//                 <View
+//                   style={{
+//                     height: 12,
+//                     backgroundColor: "#D1D5DB",
+//                     borderRadius: 6,
+//                     width: "50%",
+//                   }}
+//                 />
+//               </View>
+//             </View>
+//           </SkeletonShimmer>
+//         ))}
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default function HomePage() {
+//   const { data, isLoading, isError, refetch } = useQuery({
+//     queryKey: ["homepage-data"],
+//     queryFn: fetchHomepageData,
+//     staleTime: 5 * 60 * 1000,
+//     cacheTime: 30 * 60 * 1000,
+//   });
+
+//   const sections = React.useMemo(
+//     () =>
+//       !data
+//         ? []
+//         : [
+//             {
+//               key: "banners",
+//               component: <BannerSection banners={data.banners} />,
+//             },
+//             {
+//               key: "categories",
+//               component: <CategoriesSection categories={data.categories} />,
+//             },
+//             {
+//               key: "featuredProducts",
+//               component: <FeaturedProducts products={data.products} />,
+//             },
+//             {
+//               key: "dealOfTheDay",
+//               component: <DealOfTheDay endTime="2025-02-26T08:53:18Z" />,
+//             },
+//             {
+//               key: "gridPopularProducts",
+//               component: <GridOfPopularProducts products={data.products} />,
+//             },
+//             {
+//               key: "aboutUs",
+//               component: <AboutSection />,
+//             },
+//             {
+//               key: "blogs",
+//               component: <BlogSection blogs={data.blogs} />,
+//             },
+//           ],
+//     [data]
+//   );
+
+//   const renderItem = useCallback(
+//     ({ item }) => <React.Fragment>{item.component}</React.Fragment>,
+//     []
+//   );
+
+//   if (isError) {
+//     return <ErrorView onRetry={refetch} />;
+//   }
+
+//   if (isLoading) {
+//     return <HomepageSkeleton />;
+//   }
+
+//   return (
+//     <FlatList
+//       data={sections}
+//       renderItem={renderItem}
+//       keyExtractor={(item) => item.key}
+//       refreshControl={
+//         <RefreshControl
+//           refreshing={isLoading}
+//           onRefresh={refetch}
+//           tintColor="#4ECB71"
+//           colors={["#4ECB71"]}
+//         />
+//       }
+//       showsVerticalScrollIndicator={false}
+//       contentContainerStyle={{
+//         flexGrow: 1,
+//         backgroundColor: "#F9FAFB",
+//         paddingBottom: 16,
+//       }}
+//       removeClippedSubviews={Platform.OS === "android"}
+//       maxToRenderPerBatch={3}
+//       windowSize={5}
+//       initialNumToRender={3}
+//     />
+//   );
+// }
+
+/*******************************/
+
 import React, { useCallback } from "react";
 import {
   View,
@@ -3593,38 +3858,27 @@ import BannerSection from "../Components/Home/BannerSection";
 import AboutSection from "../Components/Home/AboutSection";
 
 const fetchHomepageData = async (): Promise<HomePageData> => {
+  const auth = {
+    username: process.env.EXPO_PUBLIC_STRAPI_API_USERNAME,
+    password: process.env.EXPO_PUBLIC_STRAPI_API_PASSWORD,
+  };
+
   const [banners, products, blogs, categories] = await Promise.all([
     axios.get(
       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/banners?populate=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BANNER}`,
-        },
-      }
+      { auth }
     ),
     axios.get(
       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/products?populate=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_PRODUCTS}`,
-        },
-      }
+      { auth }
     ),
     axios.get(
       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/blog-posts?populate=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BLOG}`,
-        },
-      }
+      { auth }
     ),
     axios.get(
       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/categories?populate=*`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_CATEGORIES}`,
-        },
-      }
+      { auth }
     ),
   ]);
 

@@ -2010,6 +2010,382 @@
 
 /****************************** */
 
+// import { Stack, useRouter } from "expo-router";
+// import { SafeAreaProvider } from "react-native-safe-area-context";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { useCallback, useEffect, useState } from "react";
+// import { View, StatusBar } from "react-native";
+// import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+// import { ThemeProvider, createTheme } from "@rneui/themed";
+// import AnimatedSplash from "../Components/splash/AnimatedSplash";
+// // import { usePushNotification } from "../hooks/usePushNotification";
+// import { LanguageProvider } from "../contexts/LanguageContext";
+// import i18n from "../../i18n/i18nConfig";
+// import { useLoadingResources } from "../hooks/useLoadingResources";
+// import "../globals.css";
+// import { UserProvider } from "../contexts/UserContext";
+// import Toast from "react-native-toast-message";
+// import * as Linking from "expo-linking";
+
+// const queryClient = new QueryClient({
+//   defaultOptions: { queries: { retry: 2, staleTime: 1000 * 60 * 5 } },
+// });
+
+// const theme = createTheme({
+//   mode: "dark",
+//   lightColors: {
+//     primary: "#FF6B6B",
+//     secondary: "#4ECB71",
+//     background: "#000000",
+//     white: "#FFFFFF",
+//   },
+//   darkColors: {
+//     primary: "#FF8787",
+//     secondary: "#63D587",
+//     background: "#000000",
+//     white: "#FFFFFF",
+//   },
+//   components: {
+//     Header: {
+//       backgroundColor: "#000000",
+//       containerStyle: { backgroundColor: "#000000" },
+//     },
+//     StatusBar: { barStyle: "light-content", backgroundColor: "#000000" },
+//     Tab: { indicatorStyle: { backgroundColor: "#FFFFFF" } },
+//     TabBar: {
+//       style: { backgroundColor: "#000000" },
+//       labelStyle: { color: "#FFFFFF" },
+//       indicatorStyle: { backgroundColor: "#FFFFFF" },
+//     },
+//   },
+// });
+
+// const IS_TEST_ENV = true; // Toggle based on environment
+// const SURL = IS_TEST_ENV
+//   ? "https://664b-37-39-176-72.ngrok-free.app/api/payments/success"
+//   : "https://your-production-domain.com/api/payments/success";
+// const FURL = IS_TEST_ENV
+//   ? "https://664b-37-39-176-72.ngrok-free.app/api/payments/failure"
+//   : "https://your-production-domain.com/api/payments/failure";
+
+// function AppContent() {
+//   // const { expoPushToken } = usePushNotification();
+//   const router = useRouter();
+
+//   // useEffect(() => {
+//   //   if (expoPushToken) console.log("Push Token:", expoPushToken);
+//   // }, [expoPushToken]);
+
+//   useEffect(() => {
+//     const handleInitialURL = async () => {
+//       const url = await Linking.getInitialURL();
+//       if (url) handleDeepLink(url);
+//     };
+
+//     const handleDeepLink = (url) => {
+//       if (url.startsWith(SURL)) {
+//         router.push("/PaymentSuccessScreen");
+//       } else if (url.startsWith(FURL)) {
+//         const parsedUrl = Linking.parse(url);
+//         const errorMessage = parsedUrl.queryParams?.error || "Payment failed";
+//         router.push({
+//           pathname: "/PaymentFailureScreen",
+//           params: { error: errorMessage },
+//         });
+//       } else {
+//         const parsed = Linking.parse(url);
+//         if (parsed.path?.includes("store")) {
+//           router.push(parsed.path);
+//         }
+//       }
+//     };
+
+//     handleInitialURL();
+//     const subscription = Linking.addEventListener("url", ({ url }) =>
+//       handleDeepLink(url)
+//     );
+//     return () => subscription.remove();
+//   }, [router]);
+
+//   return (
+//     <ClerkProvider
+//       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+//     >
+//       <UserProvider>
+//         <ClerkLoaded>
+//           <QueryClientProvider client={queryClient}>
+//             <ThemeProvider theme={theme}>
+//               <StatusBar barStyle="light-content" backgroundColor="#000000" />
+//               <LanguageProvider i18n={i18n}>
+//                 <SafeAreaProvider>
+//                   <GestureHandlerRootView
+//                     style={{ flex: 1, backgroundColor: "#000000" }}
+//                   >
+//                     <Stack
+//                       screenOptions={{
+//                         headerShown: false,
+//                         headerStyle: { backgroundColor: "#000000" },
+//                         headerTintColor: "#FFFFFF",
+//                         contentStyle: { backgroundColor: "#000000" },
+//                       }}
+//                     >
+//                       <Stack.Screen
+//                         name="(tabs)"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="UserProfile"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="Cart"
+//                         options={{ headerShown: false, presentation: "modal" }}
+//                       />
+//                       {/* <Stack.Screen
+//                         name="StoreLocator"
+//                         options={{ headerShown: false }}
+//                       /> */}
+//                       <Stack.Screen
+//                         name="SearchBar"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="(auth)"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                       <Stack.Screen
+//                         name="Checkout"
+//                         options={{ headerShown: false, presentation: "modal" }}
+//                       />
+//                       <Stack.Screen
+//                         name="PaymentSuccessScreen"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                       <Stack.Screen
+//                         name="PaymentFailureScreen"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                     </Stack>
+//                     <Toast position="top" topOffset={50} />
+//                   </GestureHandlerRootView>
+//                 </SafeAreaProvider>
+//               </LanguageProvider>
+//             </ThemeProvider>
+//           </QueryClientProvider>
+//         </ClerkLoaded>
+//       </UserProvider>
+//     </ClerkProvider>
+//   );
+// }
+
+// export default function RootLayout() {
+//   const [isLottieComplete, setLottieComplete] = useState(true);
+//   const isLoadingComplete = useLoadingResources();
+
+//   const handleLottieComplete = useCallback(() => {
+//     setLottieComplete(true);
+//   }, []);
+
+//   const showAppContent = isLoadingComplete && isLottieComplete;
+
+//   if (!showAppContent) {
+//     return (
+//       <View style={{ flex: 1, backgroundColor: "#000000" }}>
+//         <StatusBar barStyle="light-content" backgroundColor="#000000" />
+//         <AnimatedSplash onComplete={handleLottieComplete} />
+//       </View>
+//     );
+//   }
+
+//   return <AppContent />;
+// }
+
+/**********************************************/
+
+// import { Stack, useRouter } from "expo-router";
+// import { SafeAreaProvider } from "react-native-safe-area-context";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import { useCallback, useEffect, useState } from "react";
+// import { View, StatusBar } from "react-native";
+// import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+// import { ThemeProvider, createTheme } from "@rneui/themed";
+// import AnimatedSplash from "../Components/splash/AnimatedSplash";
+// import { LanguageProvider } from "../contexts/LanguageContext";
+// import i18n from "../../i18n/i18nConfig";
+// import { useLoadingResources } from "../hooks/useLoadingResources";
+// import "../globals.css";
+// import { UserProvider } from "../contexts/UserContext";
+// import Toast from "react-native-toast-message";
+// import * as Linking from "expo-linking";
+
+// const queryClient = new QueryClient({
+//   defaultOptions: { queries: { retry: 2, staleTime: 1000 * 60 * 5 } },
+// });
+
+// const theme = createTheme({
+//   mode: "dark",
+//   lightColors: {
+//     primary: "#FF6B6B",
+//     secondary: "#4ECB71",
+//     background: "#000000",
+//     white: "#FFFFFF",
+//   },
+//   darkColors: {
+//     primary: "#FF8787",
+//     secondary: "#63D587",
+//     background: "#000000",
+//     white: "#FFFFFF",
+//   },
+//   components: {
+//     Header: {
+//       backgroundColor: "#000000",
+//       containerStyle: { backgroundColor: "#000000" },
+//     },
+//     StatusBar: { barStyle: "light-content", backgroundColor: "#000000" },
+//     Tab: { indicatorStyle: { backgroundColor: "#FFFFFF" } },
+//     TabBar: {
+//       style: { backgroundColor: "#000000" },
+//       labelStyle: { color: "#FFFFFF" },
+//       indicatorStyle: { backgroundColor: "#FFFFFF" },
+//     },
+//   },
+// });
+
+// const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+// const SURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+//   : process.env.EXPO_PUBLIC_SUCCESS_URL_TEST;
+// const FURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+//   : process.env.EXPO_PUBLIC_FAILURE_URL_TEST;
+
+// function AppContent() {
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     const handleInitialURL = async () => {
+//       const url = await Linking.getInitialURL();
+//       if (url) handleDeepLink(url);
+//     };
+
+//     const handleDeepLink = (url: any) => {
+//       if (url.startsWith(SURL)) {
+//         router.push("/PaymentSuccessScreen");
+//       } else if (url.startsWith(FURL)) {
+//         const parsedUrl = Linking.parse(url);
+//         const errorMessage = parsedUrl.queryParams?.error || "Payment failed";
+//         router.push({
+//           pathname: "/PaymentFailureScreen",
+//           params: { error: errorMessage },
+//         });
+//       } else {
+//         const parsed = Linking.parse(url);
+//         if (parsed.path?.includes("store")) {
+//           router.push(parsed.path);
+//         }
+//       }
+//     };
+
+//     handleInitialURL();
+//     const subscription = Linking.addEventListener("url", ({ url }) =>
+//       handleDeepLink(url)
+//     );
+//     return () => subscription.remove();
+//   }, [router]);
+
+//   return (
+//     <ClerkProvider
+//       publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+//     >
+//       <UserProvider>
+//         <ClerkLoaded>
+//           <QueryClientProvider client={queryClient}>
+//             <ThemeProvider theme={theme}>
+//               <StatusBar barStyle="light-content" backgroundColor="#000000" />
+//               <LanguageProvider i18n={i18n}>
+//                 <SafeAreaProvider>
+//                   <GestureHandlerRootView
+//                     style={{ flex: 1, backgroundColor: "#000000" }}
+//                   >
+//                     <Stack
+//                       screenOptions={{
+//                         headerShown: false,
+//                         headerStyle: { backgroundColor: "#000000" },
+//                         headerTintColor: "#FFFFFF",
+//                         contentStyle: { backgroundColor: "#000000" },
+//                       }}
+//                     >
+//                       <Stack.Screen
+//                         name="(tabs)"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="UserProfile"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="Cart"
+//                         options={{ headerShown: false, presentation: "modal" }}
+//                       />
+//                       <Stack.Screen
+//                         name="SearchBar"
+//                         options={{ headerShown: false }}
+//                       />
+//                       <Stack.Screen
+//                         name="(auth)"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                       <Stack.Screen
+//                         name="Checkout"
+//                         options={{ headerShown: false, presentation: "modal" }}
+//                       />
+//                       <Stack.Screen
+//                         name="PaymentSuccessScreen"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                       <Stack.Screen
+//                         name="PaymentFailureScreen"
+//                         options={{ headerShown: false, animation: "fade" }}
+//                       />
+//                     </Stack>
+//                     <Toast position="top" topOffset={50} />
+//                   </GestureHandlerRootView>
+//                 </SafeAreaProvider>
+//               </LanguageProvider>
+//             </ThemeProvider>
+//           </QueryClientProvider>
+//         </ClerkLoaded>
+//       </UserProvider>
+//     </ClerkProvider>
+//   );
+// }
+
+// export default function RootLayout() {
+//   const [isLottieComplete, setLottieComplete] = useState(true);
+//   const isLoadingComplete = useLoadingResources();
+
+//   const handleLottieComplete = useCallback(() => {
+//     setLottieComplete(true);
+//   }, []);
+
+//   const showAppContent = isLoadingComplete && isLottieComplete;
+
+//   if (!showAppContent) {
+//     return (
+//       <View style={{ flex: 1, backgroundColor: "#000000" }}>
+//         <StatusBar barStyle="light-content" backgroundColor="#000000" />
+//         <AnimatedSplash onComplete={handleLottieComplete} />
+//       </View>
+//     );
+//   }
+
+//   return <AppContent />;
+// }
+
+/***************************************/
+
 import { Stack, useRouter } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -2019,7 +2395,6 @@ import { View, StatusBar } from "react-native";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { ThemeProvider, createTheme } from "@rneui/themed";
 import AnimatedSplash from "../Components/splash/AnimatedSplash";
-// import { usePushNotification } from "../hooks/usePushNotification";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import i18n from "../../i18n/i18nConfig";
 import { useLoadingResources } from "../hooks/useLoadingResources";
@@ -2061,37 +2436,30 @@ const theme = createTheme({
   },
 });
 
-const IS_TEST_ENV = true; // Toggle based on environment
-const SURL = IS_TEST_ENV
-  ? "https://664b-37-39-176-72.ngrok-free.app/api/payments/success"
-  : "https://your-production-domain.com/api/payments/success";
-const FURL = IS_TEST_ENV
-  ? "https://664b-37-39-176-72.ngrok-free.app/api/payments/failure"
-  : "https://your-production-domain.com/api/payments/failure";
+const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+const SURL = IS_PRODUCTION
+  ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+  : process.env.EXPO_PUBLIC_SUCCESS_URL_TEST;
+const FURL = IS_PRODUCTION
+  ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+  : process.env.EXPO_PUBLIC_FAILURE_URL_TEST;
 
 function AppContent() {
-  // const { expoPushToken } = usePushNotification();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (expoPushToken) console.log("Push Token:", expoPushToken);
-  // }, [expoPushToken]);
-
   useEffect(() => {
-    const handleInitialURL = async () => {
-      const url = await Linking.getInitialURL();
-      if (url) handleDeepLink(url);
-    };
-
-    const handleDeepLink = (url) => {
+    const handleDeepLink = ({ url }: { url: string }) => {
       if (url.startsWith(SURL)) {
-        router.push("/PaymentSuccessScreen");
+        const params = new URLSearchParams(url.split("?")[1]);
+        const txnId = params.get("txnId");
+        router.push({ pathname: "/PaymentSuccessScreen", params: { txnId } });
       } else if (url.startsWith(FURL)) {
-        const parsedUrl = Linking.parse(url);
-        const errorMessage = parsedUrl.queryParams?.error || "Payment failed";
+        const params = new URLSearchParams(url.split("?")[1]);
+        const errorMessage = params.get("errorMessage") || "Payment failed";
+        const txnId = params.get("txnId");
         router.push({
           pathname: "/PaymentFailureScreen",
-          params: { error: errorMessage },
+          params: { error: errorMessage, txnId },
         });
       } else {
         const parsed = Linking.parse(url);
@@ -2101,16 +2469,16 @@ function AppContent() {
       }
     };
 
-    handleInitialURL();
-    const subscription = Linking.addEventListener("url", ({ url }) =>
-      handleDeepLink(url)
-    );
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    Linking.getInitialURL().then((url) => url && handleDeepLink({ url }));
+
     return () => subscription.remove();
   }, [router]);
 
   return (
     <ClerkProvider
-      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
     >
       <UserProvider>
         <ClerkLoaded>
@@ -2130,41 +2498,28 @@ function AppContent() {
                         contentStyle: { backgroundColor: "#000000" },
                       }}
                     >
-                      <Stack.Screen
-                        name="(tabs)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="UserProfile"
-                        options={{ headerShown: false }}
-                      />
+                      <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="UserProfile" />
                       <Stack.Screen
                         name="Cart"
-                        options={{ headerShown: false, presentation: "modal" }}
+                        options={{ presentation: "modal" }}
                       />
-                      {/* <Stack.Screen
-                        name="StoreLocator"
-                        options={{ headerShown: false }}
-                      /> */}
-                      <Stack.Screen
-                        name="SearchBar"
-                        options={{ headerShown: false }}
-                      />
+                      <Stack.Screen name="SearchBar" />
                       <Stack.Screen
                         name="(auth)"
-                        options={{ headerShown: false, animation: "fade" }}
+                        options={{ animation: "fade" }}
                       />
                       <Stack.Screen
                         name="Checkout"
-                        options={{ headerShown: false, presentation: "modal" }}
+                        options={{ presentation: "modal" }}
                       />
                       <Stack.Screen
                         name="PaymentSuccessScreen"
-                        options={{ headerShown: false, animation: "fade" }}
+                        options={{ animation: "fade" }}
                       />
                       <Stack.Screen
                         name="PaymentFailureScreen"
-                        options={{ headerShown: false, animation: "fade" }}
+                        options={{ animation: "fade" }}
                       />
                     </Stack>
                     <Toast position="top" topOffset={50} />

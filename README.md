@@ -48,3 +48,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+# Sometimes you need tO tell Metro to bind to 192.168.8.125 instead of auto-detecting your network IP.
+
+- export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.8.200

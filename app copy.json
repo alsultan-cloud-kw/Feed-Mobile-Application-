@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "mob-feeds-app",
-    "slug": "feed-app",
+    "slug": "feed-notifications",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -36,7 +36,8 @@
             {
               "scheme": "myapp",
               "host": "*",
-              "pathPrefix": "/"
+              "pathPrefix": "/",
+              "deepLinking": true
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
@@ -68,15 +69,12 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "34a9cc86-ce6f-432c-ace4-e055620bfadb",
-        "cli": {
-          "appVersionSource": "remote"
-        }
+        "projectId": "b7f5b17f-5fa3-4f5b-92da-b69f5c585ebc"
       }
     },
     "experiments": {
       "typedRoutes": true
     },
-    "owner": "alsultan-co"
+    "owner": "sultan-gold"
   }
 }

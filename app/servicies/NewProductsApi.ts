@@ -509,6 +509,171 @@
 
 /************************************* */
 
+// import axios from "axios";
+
+// export interface Product {
+//   id: string;
+//   documentId: string;
+//   name: string;
+//   Category: string;
+//   Subcategory: string;
+//   price: number | null;
+//   description?: string;
+//   primaryImage?: {
+//     formats?: {
+//       thumbnail?: { url?: string };
+//       small?: { url?: string };
+//       medium?: { url?: string };
+//       large?: { url?: string };
+//     };
+//     url?: string;
+//   }[];
+// }
+
+// export interface FilterState {
+//   category: string | null;
+//   subcategories: string[];
+// }
+
+// interface ProductsResponse {
+//   data: Product[];
+//   meta: {
+//     pagination: {
+//       page: number;
+//       pageSize: number;
+//       pageCount: number;
+//       total: number;
+//     };
+//   };
+// }
+
+// const ITEMS_PER_PAGE = 10;
+
+// const api = axios.create({
+//   baseURL: process.env.EXPO_PUBLIC_STRAPI_API_URL,
+//   headers: {
+//     Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_PRODUCTS}`,
+//   },
+//   timeout: 10000, // Added request timeout
+// });
+
+// export const fetchProductDetails = async (
+//   documentId: string
+// ): Promise<Product> => {
+//   if (!documentId) throw new Error("Document ID is required");
+//   try {
+//     const response = await api.get<{ data: Product }>(
+//       `/api/products/${documentId}`,
+//       {
+//         params: { populate: "*" },
+//       }
+//     );
+//     const productData = response.data.data;
+//     return {
+//       ...productData,
+//       price: productData.price ? Number(productData.price) : null,
+//       documentId: productData.documentId || productData.id,
+//     };
+//   } catch (error) {
+//     console.error("Error fetching product details:", error);
+//     throw new Error("Failed to fetch product details");
+//   }
+// };
+
+// export const fetchSimilarProducts = async (
+//   category: string,
+//   currentProductId: string,
+//   pageParam = 1
+// ): Promise<{ data: Product[]; nextPage: number | undefined }> => {
+//   if (!category || !currentProductId) {
+//     throw new Error("Category and product ID are required");
+//   }
+//   try {
+//     const response = await api.get<ProductsResponse>("/api/products", {
+//       params: {
+//         populate: "*",
+//         "filters[Category][$eq]": category,
+//         "filters[documentId][$ne]": currentProductId,
+//         "pagination[page]": pageParam,
+//         "pagination[pageSize]": 4,
+//       },
+//     });
+
+//     const normalizedData = response.data.data.map((item) => ({
+//       ...item,
+//       price: item.price ? Number(item.price) : null,
+//       documentId: item.documentId || item.id,
+//     }));
+
+//     return {
+//       data: normalizedData,
+//       nextPage:
+//         response.data.meta.pagination.page <
+//         response.data.meta.pagination.pageCount
+//           ? pageParam + 1
+//           : undefined,
+//     };
+//   } catch (error) {
+//     console.error("Error fetching similar products:", {
+//       message: axios.isAxiosError(error) ? error.message : String(error),
+//       status: axios.isAxiosError(error) ? error.response?.status : undefined,
+//     });
+//     throw new Error("Failed to fetch similar products");
+//   }
+// };
+
+// export const fetchProducts = async (
+//   filters: FilterState,
+//   pageParam = 1
+// ): Promise<{ data: Product[]; nextPage: number | undefined }> => {
+//   try {
+//     const response = await api.get<ProductsResponse>("/api/products", {
+//       params: {
+//         populate: "*",
+//         "pagination[page]": pageParam,
+//         "pagination[pageSize]": ITEMS_PER_PAGE,
+//         ...(filters.category && { "filters[Category][$eq]": filters.category }),
+//         ...(filters.subcategories.length > 0 && {
+//           "filters[Subcategory][$in]": filters.subcategories,
+//         }),
+//       },
+//     });
+
+//     const normalizedData = response.data.data.map((item) => ({
+//       ...item,
+//       price: item.price ? Number(item.price) : null,
+//       documentId: item.documentId || item.id,
+//     }));
+
+//     return {
+//       data: normalizedData,
+//       nextPage:
+//         response.data.meta.pagination.page <
+//         response.data.meta.pagination.pageCount
+//           ? pageParam + 1
+//           : undefined,
+//     };
+//   } catch (error) {
+//     console.error("Error fetching products:", error);
+//     throw new Error("Failed to fetch products");
+//   }
+// };
+
+// export const getBestAvailableImageUrl = (product: Product): string | null => {
+//   if (!product?.primaryImage?.[0]) return null;
+//   const formats = product.primaryImage[0].formats;
+//   return (
+//     formats?.large?.url ||
+//     formats?.medium?.url ||
+//     formats?.small?.url ||
+//     formats?.thumbnail?.url ||
+//     product.primaryImage[0].url ||
+//     null
+//   );
+// };
+
+/**********************************/
+
 import axios from "axios";
 
 export interface Product {
@@ -551,10 +716,11 @@ const ITEMS_PER_PAGE = 10;
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_STRAPI_API_URL,
-  headers: {
-    Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_PRODUCTS}`,
+  auth: {
+    username: process.env.EXPO_PUBLIC_STRAPI_API_USERNAME,
+    password: process.env.EXPO_PUBLIC_STRAPI_API_PASSWORD,
   },
-  timeout: 10000, // Added request timeout
+  timeout: 10000,
 });
 
 export const fetchProductDetails = async (

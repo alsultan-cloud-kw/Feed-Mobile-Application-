@@ -505,6 +505,265 @@
 
 /************************************* */
 
+// import React from "react";
+// import {
+//   View,
+//   Text,
+//   ScrollView,
+//   Pressable,
+//   ActivityIndicator,
+//   Dimensions,
+//   Platform,
+// } from "react-native";
+// import { useLocalSearchParams, router } from "expo-router";
+// import { MotiView } from "moti";
+// import axios from "axios";
+// import { ArrowLeft, Calendar, User } from "lucide-react-native";
+// import { useQuery } from "@tanstack/react-query";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import RenderHTML from "@builder.io/react-native-render-html";
+
+// const { width } = Dimensions.get("window");
+
+// interface BlogPost {
+//   id: number;
+//   Title: string;
+//   Author: string;
+//   Content: string;
+//   Category: string;
+//   SubCategory: string | null;
+//   publishedAt: string;
+//   SEODescription: string;
+// }
+
+// const fetchBlogPost = async (slug: string): Promise<BlogPost> => {
+//   try {
+//     const response = await axios.get(
+//       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/blog-posts?filters[Slug][$eq]=${slug}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BLOG}`,
+//         },
+//       }
+//     );
+
+//     if (!response.data.data?.[0]) {
+//       throw new Error("المقال غير موجود");
+//     }
+
+//     return response.data.data[0];
+//   } catch (error) {
+//     console.error("Error fetching blog post:", error);
+//     throw new Error("فشل في تحميل المقال");
+//   }
+// };
+
+// const HeaderComponent = ({
+//   post,
+//   onBack,
+// }: {
+//   post: BlogPost;
+//   onBack: () => void;
+// }) => (
+//   <MotiView
+//     from={{ opacity: 0, translateY: -20 }}
+//     animate={{ opacity: 1, translateY: 0 }}
+//     transition={{ type: "spring", damping: 15 }}
+//   >
+//     <View className="p-4 flex-row items-center justify-between">
+//       <Pressable
+//         onPress={onBack}
+//         className="p-2 rounded-xl bg-gray-50 active:bg-gray-100"
+//         style={Platform.select({
+//           ios: {
+//             shadowColor: "#000",
+//             shadowOffset: { width: 0, height: 2 },
+//             shadowOpacity: 0.1,
+//             shadowRadius: 4,
+//           },
+//           android: { elevation: 2 },
+//         })}
+//       >
+//         <ArrowLeft size={24} color="#374151" />
+//       </Pressable>
+//       {post.Category && (
+//         <Text className="text-sm text-gray-600 font-medium">
+//           {post.Category}
+//         </Text>
+//       )}
+//     </View>
+//   </MotiView>
+// );
+
+// export default function BlogPostScreen() {
+//   const { slug } = useLocalSearchParams();
+//   const insets = useSafeAreaInsets();
+
+//   const {
+//     data: post,
+//     isLoading,
+//     isError,
+//     error,
+//     refetch,
+//   } = useQuery({
+//     queryKey: ["blogPost", slug],
+//     queryFn: () => fetchBlogPost(String(slug)),
+//     retry: 2,
+//     staleTime: 5 * 60 * 1000,
+//   });
+
+//   const handleBack = () => {
+//     router.back();
+//   };
+
+//   const renderersProps = {
+//     h1: {
+//       baseStyle: {
+//         fontSize: 24,
+//         lineHeight: 60,
+//         marginVertical: 16,
+//         fontWeight: "700",
+//         color: "#111827",
+//         textAlign: "right",
+//       },
+//     },
+//     h2: {
+//       baseStyle: {
+//         fontSize: 22,
+//         lineHeight: 60,
+//         marginVertical: 14,
+//         fontWeight: "600",
+//         color: "#111827",
+//         textAlign: "right",
+//       },
+//     },
+//     h3: {
+//       baseStyle: {
+//         fontSize: 20,
+//         lineHeight: 60,
+//         marginVertical: 12,
+//         fontWeight: "600",
+//         color: "#111827",
+//         textAlign: "right",
+//       },
+//     },
+//     h4: {
+//       baseStyle: {
+//         fontSize: 18,
+//         lineHeight: 60,
+//         marginVertical: 10,
+//         fontWeight: "600",
+//         color: "#111827",
+//         textAlign: "right",
+//       },
+//     },
+//     p: {
+//       baseStyle: {
+//         fontSize: 16,
+//         lineHeight: 60,
+//         marginVertical: 8,
+//         color: "#374151",
+//         textAlign: "right",
+//       },
+//     },
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <MotiView
+//         className="flex-1 justify-center items-center bg-white"
+//         style={{ paddingTop: insets.top }}
+//         from={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         transition={{ type: "timing", duration: 300 }}
+//       >
+//         <ActivityIndicator size="large" color="#16A34A" />
+//         <Text className="mt-4 text-gray-600">جاري التحميل...</Text>
+//       </MotiView>
+//     );
+//   }
+
+//   if (isError || !post) {
+//     return (
+//       <MotiView
+//         className="flex-1 justify-center items-center bg-white p-4"
+//         style={{ paddingTop: insets.top }}
+//         from={{ opacity: 0, scale: 0.9 }}
+//         animate={{ opacity: 1, scale: 1 }}
+//         transition={{ type: "spring", damping: 15 }}
+//       >
+//         <Text className="text-red-500 text-center mb-4 text-lg">
+//           {error instanceof Error ? error.message : "حدث خطأ"}
+//         </Text>
+//         <Pressable
+//           onPress={() => refetch()}
+//           className="bg-green-500 px-6 py-3 rounded-xl active:bg-green-600"
+//         >
+//           <Text className="text-white font-medium">المحاولة مرة أخرى</Text>
+//         </Pressable>
+//       </MotiView>
+//     );
+//   }
+
+//   return (
+//     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+//       <HeaderComponent post={post} onBack={handleBack} />
+
+//       <ScrollView
+//         className="flex-1"
+//         showsVerticalScrollIndicator={false}
+//         contentContainerStyle={{ paddingBottom: 24 }}
+//       >
+//         <MotiView
+//           from={{ opacity: 0, translateY: 20 }}
+//           animate={{ opacity: 1, translateY: 0 }}
+//           transition={{ type: "spring", damping: 15 }}
+//           className="px-4"
+//         >
+//           <Text className="text-2xl font-bold text-gray-900 mb-4 text-right leading-loose">
+//             {post.Title}
+//           </Text>
+
+//           <View className="flex-row items-center justify-end gap-4 mb-6">
+//             <View className="flex-row items-center">
+//               <Text className="text-gray-600 text-sm ml-2">{post.Author}</Text>
+//               <User size={16} color="#666666" />
+//             </View>
+//             <View className="flex-row items-center">
+//               <Text className="text-gray-600 text-sm ml-2">
+//                 {new Date(post.publishedAt).toLocaleDateString("ar-KW")}
+//               </Text>
+//               <Calendar size={16} color="#666666" />
+//             </View>
+//           </View>
+//           <View className="flex ">
+//             <RenderHTML
+//               source={{ html: post.Content }}
+//               contentWidth={width - 32}
+//               baseStyle={{
+//                 color: "#374151",
+//                 fontSize: 16,
+//                 lineHeight: 40,
+//                 textAlign: "right",
+//                 paddingVertical: 20,
+//               }}
+//               renderersProps={renderersProps}
+//               enableExperimentalGhostLinesPrevention
+//               enableExperimentalMarginCollapsing
+//               defaultTextProps={{
+//                 selectable: true,
+//               }}
+//               systemFonts={["Cairo", "Cairo-Bold", "Cairo-SemiBold"]}
+//             />
+//           </View>
+//         </MotiView>
+//       </ScrollView>
+//     </View>
+//   );
+// }
+
+/*********************************/
+
 import React from "react";
 import {
   View,
@@ -538,13 +797,13 @@ interface BlogPost {
 
 const fetchBlogPost = async (slug: string): Promise<BlogPost> => {
   try {
+    const auth = {
+      username: process.env.EXPO_PUBLIC_STRAPI_API_USERNAME,
+      password: process.env.EXPO_PUBLIC_STRAPI_API_PASSWORD,
+    };
     const response = await axios.get(
       `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/blog-posts?filters[Slug][$eq]=${slug}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_BLOG}`,
-        },
-      }
+      { auth }
     );
 
     if (!response.data.data?.[0]) {

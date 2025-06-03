@@ -35751,9 +35751,3202 @@
 //   },
 // });
 
-/********************************************** */
+/*************************************/
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+// import React, { useState, useEffect, useRef, useCallback } from "react";
+// import {
+//   View,
+//   Text,
+//   ScrollView,
+//   Alert,
+//   ActivityIndicator,
+//   StyleSheet,
+//   Platform,
+//   TouchableOpacity,
+//   SafeAreaView,
+//   Modal,
+//   StatusBar,
+//   TextInput,
+//   KeyboardAvoidingView,
+// } from "react-native";
+// import { router, useNavigation } from "expo-router";
+// import { WebView } from "react-native-webview";
+// import { useFocusEffect } from "@react-navigation/native";
+// import {
+//   Shield,
+//   CreditCard,
+//   ArrowLeft,
+//   Lock,
+//   ChevronLeft,
+//   XCircle,
+//   User,
+//   Phone,
+//   Mail,
+//   MapPin,
+// } from "lucide-react-native";
+// import Toast from "react-native-toast-message";
+// import NetInfo from "@react-native-community/netinfo";
+// import * as SecureStore from "expo-secure-store";
+// import useCartStore from "../../store/cartStore";
+// import { OrderSummaryRow } from "../Components/OrderSummary";
+// import useShippingFee from "../hooks/useShippingFee";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import LottieView from "lottie-react-native";
+// import { useUserContext } from "../contexts/UserContext";
+// import publicIP from "react-native-public-ip";
+
+// // Environment Configuration
+// const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+// const STRAPI_API_URL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_STRAPI_API_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app";
+// const SURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/success";
+// const FURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/failure";
+// const FORM_DATA_KEY =
+//   process.env.EXPO_PUBLIC_FORM_DATA_KEY || "user_checkout_info";
+// const REQUEST_TIMEOUT =
+//   Number(process.env.EXPO_PUBLIC_REQUEST_TIMEOUT) || 30000;
+
+// const PaymentSuccessModal = ({ visible, onClose, transactionId }) => {
+//   const animationRef = useRef(null);
+
+//   useEffect(() => {
+//     if (visible && animationRef.current) animationRef.current.play();
+//   }, [visible]);
+
+//   return (
+//     <Modal
+//       visible={visible}
+//       transparent={true}
+//       animationType="fade"
+//       onRequestClose={onClose}
+//     >
+//       <View style={styles.modalBackground}>
+//         <View style={styles.successModalContent}>
+//           <LottieView
+//             ref={animationRef}
+//             source={require("../../assets/lotties/payment-success.json")}
+//             style={styles.lottieAnimation}
+//             loop={false}
+//             onAnimationFinish={onClose}
+//           />
+//           <Text style={styles.modalTitle}>Payment Successful!</Text>
+//           <Text style={styles.modalText}>
+//             Thank you for your purchase. Transaction ID: {transactionId}
+//           </Text>
+//           <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+//             <Text style={styles.modalButtonText}>Back to Cart</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// };
+
+// const PaymentFailureModal = ({
+//   visible,
+//   onClose,
+//   errorMessage,
+//   transactionId,
+// }) => (
+//   <Modal
+//     visible={visible}
+//     transparent={true}
+//     animationType="fade"
+//     onRequestClose={onClose}
+//   >
+//     <View style={styles.modalBackground}>
+//       <View style={[styles.modalContent, styles.failureModal]}>
+//         <XCircle size={48} color="#E53935" />
+//         <Text style={styles.modalTitle}>Payment Failed</Text>
+//         <Text style={styles.modalText}>
+//           {errorMessage || "An error occurred during payment."}
+//           {transactionId && `\nTransaction ID: ${transactionId}`}
+//         </Text>
+//         <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+//           <Text style={styles.modalButtonText}>Try Again</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   </Modal>
+// );
+
+// const PaymentLoadingOverlay = () => (
+//   <View style={styles.loadingOverlay}>
+//     <View style={styles.loadingCard}>
+//       <ActivityIndicator size="large" color="#10B981" />
+//       <Text style={styles.loadingTitle}>Processing Payment</Text>
+//       <Text style={styles.loadingSubtext}>Please don't close this window</Text>
+//     </View>
+//   </View>
+// );
+
+// const REQUIRED_FIELDS = [
+//   "firstName",
+//   "lastName",
+//   "phone",
+//   "email",
+//   "state",
+//   "city",
+//   "address",
+// ];
+// const PHONE_REGEX = /^\d{8,}$/;
+// const EMAIL_REGEX = /\S+@\S+\.\S+/;
+
+// const saveFormData = async (data) => {
+//   try {
+//     await SecureStore.setItemAsync(FORM_DATA_KEY, JSON.stringify(data));
+//   } catch (error) {
+//     console.error("Error saving form data:", error);
+//   }
+// };
+
+// const loadFormData = async () => {
+//   try {
+//     const savedData = await SecureStore.getItemAsync(FORM_DATA_KEY);
+//     return savedData ? JSON.parse(savedData) : null;
+//   } catch (error) {
+//     console.error("Error loading form data:", error);
+//     return null;
+//   }
+// };
+
+// export default function CheckoutPage() {
+//   const insets = useSafeAreaInsets();
+//   const navigation = useNavigation();
+//   const { items, total, discountedTotal, appliedCoupon, clearCart } =
+//     useCartStore();
+//   const {
+//     shippingFee,
+//     loading: isLoadingShippingFee,
+//     error: shippingFeeError,
+//   } = useShippingFee();
+//   const { userData } = useUserContext();
+
+//   const [formData, setFormData] = useState({
+//     firstName: "",
+//     lastName: "",
+//     phone: "",
+//     email: "",
+//     state: "",
+//     city: "",
+//     address: "",
+//   });
+//   const [formErrors, setFormErrors] = useState({});
+//   const [isProcessing, setIsProcessing] = useState(false);
+//   const [paymentError, setPaymentError] = useState(null);
+//   const [showWebView, setShowWebView] = useState(false);
+//   const [paymentUrl, setPaymentUrl] = useState(null);
+//   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+//   const [showSuccessModal, setShowSuccessModal] = useState(false);
+//   const [showFailureModal, setShowFailureModal] = useState(false);
+//   const [transactionId, setTransactionId] = useState(null);
+//   const [isOrderCreated, setIsOrderCreated] = useState(false);
+//   const [ipAddress, setIpAddress] = useState("");
+
+//   useEffect(() => {
+//     const loadSavedData = async () => {
+//       const savedData = await loadFormData();
+//       if (savedData) setFormData(savedData);
+//       if (userData && !userData.isGuestMode) {
+//         setFormData((prev) => ({
+//           ...prev,
+//           firstName: userData.firstName || "",
+//           lastName: userData.lastName || "",
+//           email: userData.email || "",
+//           phone: userData.phone || "",
+//         }));
+//       }
+//     };
+//     loadSavedData();
+//   }, [userData]);
+
+//   useEffect(() => {
+//     if (items.length === 0) router.replace("/(root)/Cart");
+//   }, [items.length]);
+
+//   useEffect(() => {
+//     const fetchIp = async () => {
+//       try {
+//         const ip = await publicIP();
+//         setIpAddress(ip || "192.168.8.125"); // Fallback to local IP if public IP fails
+//       } catch (error) {
+//         console.error("Error fetching IP:", error);
+//         setIpAddress("192.168.8.125"); // Use your local IP as fallback
+//       }
+//     };
+//     fetchIp();
+//   }, []);
+
+//   const validateForm = () => {
+//     const errors = {};
+//     let isValid = true;
+
+//     REQUIRED_FIELDS.forEach((field) => {
+//       if (!formData[field].trim()) {
+//         errors[field] = `${
+//           field.charAt(0).toUpperCase() + field.slice(1)
+//         } is required`;
+//         isValid = false;
+//       }
+//     });
+
+//     if (formData.email && !EMAIL_REGEX.test(formData.email)) {
+//       errors.email = "Invalid email address";
+//       isValid = false;
+//     }
+
+//     const cleanPhone = formData.phone.replace(/[^\d]/g, "");
+//     if (formData.phone && !PHONE_REGEX.test(cleanPhone)) {
+//       errors.phone = "Phone number must be at least 8 digits";
+//       isValid = false;
+//     }
+
+//     setFormErrors(errors);
+//     if (!isValid) {
+//       Toast.show({
+//         type: "error",
+//         text1: "Form Validation Error",
+//         text2: "Please fill in all required fields correctly",
+//         position: "top",
+//       });
+//     }
+//     return isValid;
+//   };
+
+//   const handleBackPress = useCallback(() => {
+//     if (showWebView) {
+//       Alert.alert(
+//         "Cancel Payment?",
+//         "Are you sure you want to cancel? This payment will not be processed.",
+//         [
+//           { text: "Continue Payment", style: "cancel" },
+//           {
+//             text: "Cancel Payment",
+//             style: "destructive",
+//             onPress: () => {
+//               setShowWebView(false);
+//               setPaymentUrl(null);
+//               setShowFailureModal(true);
+//             },
+//           },
+//         ]
+//       );
+//       return true;
+//     }
+//     router.push("/(root)/Cart");
+//     return true;
+//   }, [showWebView]);
+
+//   useEffect(() => {
+//     const backHandler = BackHandler.addEventListener(
+//       "hardwareBackPress",
+//       handleBackPress
+//     );
+//     return () => backHandler.remove();
+//   }, [handleBackPress]);
+
+//   useFocusEffect(
+//     useCallback(() => {
+//       navigation.setOptions({
+//         gestureEnabled: !showWebView,
+//         headerShown: false,
+//       });
+//     }, [showWebView])
+//   );
+
+//   const handlePaymentSuccess = async (txnId) => {
+//     if (isOrderCreated) return;
+//     setIsOrderCreated(true);
+//     setTransactionId(txnId);
+
+//     try {
+//       const orderId = `TX${new Date()
+//         .toISOString()
+//         .replace(/[^0-9]/g, "")
+//         .slice(0, 14)}${Math.random().toString(36).slice(2, 6)}`;
+//       const subtotal = total;
+//       const discountAmount = appliedCoupon
+//         ? appliedCoupon.type === "percentage"
+//           ? (total * appliedCoupon.amount) / 100
+//           : appliedCoupon.amount
+//         : 0;
+//       const orderTotal = (discountedTotal || total) + shippingFee;
+
+//       const orderData = {
+//         data: {
+//           orderId,
+//           OrderStatus: "Pending",
+//           subtotal: Number(subtotal.toFixed(2)),
+//           discountAmount: Number(discountAmount.toFixed(2)),
+//           shippingFee: Number(shippingFee.toFixed(2)),
+//           OrderTotal: Number(orderTotal.toFixed(2)),
+//           OrderDetails: JSON.stringify(items),
+//           shippingInfo: JSON.stringify({
+//             state: formData.state,
+//             city: formData.city,
+//             address: formData.address,
+//             phone: formData.phone,
+//           }),
+//           paymentStatus: "success",
+//           paymentId: orderId,
+//           isGuestOrder: userData?.isGuestMode || !userData,
+//           guestInfo:
+//             userData?.isGuestMode || !userData
+//               ? JSON.stringify({
+//                   firstName: formData.firstName,
+//                   lastName: formData.lastName,
+//                   email: formData.email,
+//                   phone: formData.phone,
+//                 })
+//               : null,
+//           auth: userData && !userData.isGuestMode ? userData.strapiId : null,
+//         },
+//       };
+
+//       const response = await fetch(`${STRAPI_API_URL}/api/orders`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_USER}`,
+//         },
+//         body: JSON.stringify(orderData),
+//       });
+
+//       if (!response.ok) {
+//         const errorText = await response.text();
+//         throw new Error(`Failed to create order in Strapi: ${errorText}`);
+//       }
+
+//       await saveFormData(formData);
+//       clearCart();
+//       setShowWebView(false);
+//       setPaymentUrl(null);
+//       Toast.show({
+//         type: "success",
+//         text1: "Payment Successful",
+//         text2: "Thank you for your purchase!",
+//         position: "top",
+//       });
+//       setShowSuccessModal(true);
+//     } catch (error) {
+//       console.error("Error in payment success:", error);
+//       setPaymentError("Failed to record order. Contact support.");
+//       handlePaymentFailure("Order recording failed", txnId);
+//     }
+//   };
+
+//   const handlePaymentFailure = (errorMessage, txnId) => {
+//     setShowWebView(false);
+//     setPaymentUrl(null);
+//     setTransactionId(txnId);
+//     setPaymentError(errorMessage || "Payment failed. Please try again.");
+//     setShowFailureModal(true);
+//   };
+
+//   const handlePaymentError = (errorMessage) => {
+//     setPaymentError(errorMessage);
+//     setShowFailureModal(true);
+//   };
+
+//   const formatAmount = (amount) => Number(amount.toFixed(2)).toString();
+
+//   const subtotal = total;
+//   const discount = appliedCoupon
+//     ? appliedCoupon.type === "percentage"
+//       ? (total * appliedCoupon.amount) / 100
+//       : appliedCoupon.amount
+//     : 0;
+//   const finalTotal = (discountedTotal || total) + shippingFee;
+
+//   const handlePayment = async () => {
+//     if (isProcessing || !validateForm()) return;
+
+//     try {
+//       const netInfo = await NetInfo.fetch();
+//       if (!netInfo.isConnected)
+//         throw new Error("No internet connection detected");
+
+//       setIsProcessing(true);
+//       setPaymentError(null);
+
+//       const customerInfo = {
+//         name: `${formData.firstName} ${formData.lastName}`,
+//         phone: formData.phone,
+//         platform: Platform.OS,
+//       };
+
+//       const response = await fetch(`${STRAPI_API_URL}/api/payments/initiate`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           amount: finalTotal,
+//           customerInfo,
+//           ipAddress,
+//         }),
+//         timeout: REQUEST_TIMEOUT,
+//       });
+
+//       if (!response.ok) {
+//         const errorText = await response.text();
+//         throw new Error(
+//           `Payment initiation error: ${response.status} - ${errorText}`
+//         );
+//       }
+
+//       const data = await response.json();
+//       const paymentUrl = data.paymentUrl;
+
+//       if (!paymentUrl || !paymentUrl.startsWith("https://"))
+//         throw new Error("Invalid or insecure payment URL received");
+
+//       setPaymentUrl(paymentUrl);
+//       setShowWebView(true);
+
+//       // Periodic status check after 60 seconds
+//       setTimeout(() => {
+//         if (showWebView) checkPaymentStatus(data.merchantTxnId);
+//       }, 60000);
+//     } catch (error) {
+//       let errorMessage = "Payment initiation failed";
+//       if (error.name === "AbortError")
+//         errorMessage = "Request timed out. Please try again.";
+//       else if (error.message) errorMessage = error.message;
+//       console.error("Payment Error:", error);
+//       setPaymentError(errorMessage);
+//       handlePaymentError(errorMessage);
+//     } finally {
+//       setIsProcessing(false);
+//     }
+//   };
+
+//   const checkPaymentStatus = async (merchantTxnId) => {
+//     try {
+//       const response = await fetch(
+//         `${STRAPI_API_URL}/api/payments/verify/${merchantTxnId}`
+//       );
+//       const data = await response.json();
+//       if (data.finalStatus === "success") {
+//         handlePaymentSuccess(data.txnId);
+//       } else if (
+//         data.finalStatus === "failed" ||
+//         data.finalStatus === "cancelled"
+//       ) {
+//         handlePaymentFailure(data.errorMessage || "Payment failed", data.txnId);
+//       }
+//     } catch (error) {
+//       console.error("Error checking payment status:", error);
+//       handlePaymentFailure("Status check failed", null);
+//     }
+//   };
+
+//   if (items.length === 0) return null;
+
+//   return (
+//     <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+//       <KeyboardAvoidingView
+//         behavior={Platform.OS === "ios" ? "padding" : "height"}
+//         style={styles.container}
+//       >
+//         <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
+//         <View style={styles.header}>
+//           <TouchableOpacity
+//             onPress={handleBackPress}
+//             style={styles.backButton}
+//             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//           >
+//             <ChevronLeft color="#E53935" size={28} />
+//           </TouchableOpacity>
+//           <Text style={styles.headerTitle}>Secure Checkout</Text>
+//         </View>
+
+//         <ScrollView
+//           style={styles.container}
+//           contentContainerStyle={styles.contentContainer}
+//           showsVerticalScrollIndicator={false}
+//         >
+//           <View style={styles.formContainer}>
+//             <Text style={styles.formTitle}>Delivery Information</Text>
+//             <Text style={styles.deliveryNote}>
+//               Orders will be delivered within the next business day.
+//             </Text>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Personal Information</Text>
+//               {[
+//                 { field: "firstName", label: "First Name *", Icon: User },
+//                 { field: "lastName", label: "Last Name *", Icon: User },
+//                 { field: "email", label: "Email *", Icon: Mail },
+//                 { field: "phone", label: "Phone Number *", Icon: Phone },
+//               ].map(({ field, label, Icon }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <Icon size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         [field]:
+//                           field === "phone" ? text.replace(/[^\d]/g, "") : text,
+//                       }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     keyboardType={
+//                       field === "email"
+//                         ? "email-address"
+//                         : field === "phone"
+//                         ? "phone-pad"
+//                         : "default"
+//                     }
+//                     autoCapitalize={field === "email" ? "none" : "words"}
+//                     maxLength={field === "phone" ? 15 : undefined}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                   {field === "phone" && !formErrors.phone && (
+//                     <Text style={styles.helperText}>
+//                       Enter your Kuwait mobile number (minimum 8 digits)
+//                     </Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Delivery Address</Text>
+//               {[
+//                 { field: "state", label: "State *" },
+//                 { field: "city", label: "City *" },
+//                 {
+//                   field: "address",
+//                   label: "Delivery Address *",
+//                   multiline: true,
+//                 },
+//               ].map(({ field, label, multiline }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <MapPin size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({ ...prev, [field]: text }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     multiline={multiline}
+//                     numberOfLines={multiline ? 3 : 1}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+//           </View>
+
+//           <View style={styles.card}>
+//             <View style={styles.cardTitleContainer}>
+//               <Text style={styles.cardTitle}>Order Summary</Text>
+//               <Text style={styles.itemCount}>{items.length} items</Text>
+//             </View>
+//             {items.map((item) => (
+//               <View key={item.documentId} style={styles.itemRow}>
+//                 <View style={styles.itemDetails}>
+//                   <Text style={styles.itemName} numberOfLines={1}>
+//                     {item.name}
+//                   </Text>
+//                   <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+//                 </View>
+//                 <Text style={styles.itemPrice}>
+//                   {((item.salesPrice || item.price) * item.quantity).toFixed(2)}{" "}
+//                   KWD
+//                 </Text>
+//               </View>
+//             ))}
+
+//             <View style={styles.summaryContainer}>
+//               <OrderSummaryRow
+//                 label="Subtotal"
+//                 value={`${subtotal.toFixed(2)} KWD`}
+//               />
+//               {appliedCoupon && (
+//                 <OrderSummaryRow
+//                   label={`Discount (${appliedCoupon.code})`}
+//                   value={`- ${discount.toFixed(2)} KWD`}
+//                   isDiscount
+//                 />
+//               )}
+//               <View style={styles.shippingFeeRow}>
+//                 <Text style={styles.summaryLabel}>Shipping Fee</Text>
+//                 <View style={styles.shippingFeeValueContainer}>
+//                   {isLoadingShippingFee ? (
+//                     <ActivityIndicator size="small" color="#10B981" />
+//                   ) : shippingFeeError ? (
+//                     <Text style={styles.errorValue}>Error loading fee</Text>
+//                   ) : (
+//                     <Text style={styles.summaryValue}>{`${shippingFee.toFixed(
+//                       2
+//                     )} KWD`}</Text>
+//                   )}
+//                 </View>
+//               </View>
+//               <View style={styles.divider} />
+//               <OrderSummaryRow
+//                 label="Total Amount"
+//                 value={`${formatAmount(finalTotal)} KWD`}
+//                 isTotal
+//                 isLoading={isLoadingShippingFee}
+//               />
+//             </View>
+//           </View>
+
+//           <View style={styles.securityCard}>
+//             <View style={styles.securityHeader}>
+//               <Lock size={20} color="#10B981" />
+//               <Text style={styles.securityTitle}>Secure Payment</Text>
+//             </View>
+//             <Text style={styles.securityText}>
+//               • SSL encrypted payment processing • Verified by Bookeey Payment
+//               Gateway • Your payment details are protected
+//             </Text>
+//           </View>
+
+//           <TouchableOpacity
+//             style={[
+//               styles.payButton,
+//               (isProcessing || isLoadingShippingFee) &&
+//                 styles.payButtonDisabled,
+//             ]}
+//             onPress={handlePayment}
+//             disabled={isProcessing || isLoadingShippingFee}
+//           >
+//             {isProcessing ? (
+//               <ActivityIndicator color="white" size="small" />
+//             ) : (
+//               <View style={styles.payButtonContent}>
+//                 <CreditCard size={20} color="white" />
+//                 <Text style={styles.payButtonText}>
+//                   Pay {formatAmount(finalTotal)} KWD
+//                 </Text>
+//               </View>
+//             )}
+//           </TouchableOpacity>
+//           {paymentError && <Text style={styles.errorText}>{paymentError}</Text>}
+//         </ScrollView>
+
+//         <Modal
+//           visible={showWebView}
+//           animationType="slide"
+//           onRequestClose={handleBackPress}
+//         >
+//           <SafeAreaView style={styles.modalContainer}>
+//             <View style={styles.webViewHeader}>
+//               <TouchableOpacity
+//                 onPress={handleBackPress}
+//                 style={styles.webViewCloseButton}
+//                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//               >
+//                 <ArrowLeft color="#E53935" size={24} />
+//               </TouchableOpacity>
+//               <View style={styles.webViewTitleContainer}>
+//                 <Lock size={16} color="#10B981" />
+//                 <Text style={styles.webViewTitle}>Secure Payment</Text>
+//               </View>
+//             </View>
+//             {isWebViewLoading && <PaymentLoadingOverlay />}
+//             {paymentUrl && (
+//               <WebView
+//                 source={{ uri: paymentUrl }}
+//                 onNavigationStateChange={(navState) => {
+//                   if (navState.url.includes(SURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const txnId = params.get("txnId");
+//                     handlePaymentSuccess(txnId);
+//                   } else if (navState.url.includes(FURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const errorMessage = params.get("errorMessage");
+//                     const txnId = params.get("txnId");
+//                     handlePaymentFailure(errorMessage, txnId);
+//                   }
+//                 }}
+//                 onLoadStart={() => setIsWebViewLoading(true)}
+//                 onLoadEnd={() => setIsWebViewLoading(false)}
+//                 onError={(syntheticEvent) =>
+//                   handlePaymentError(syntheticEvent.nativeEvent.description)
+//                 }
+//                 onHttpError={() => handlePaymentError("Connection error")}
+//                 style={styles.webView}
+//                 incognito={true}
+//                 cacheEnabled={false}
+//                 domStorageEnabled={true}
+//                 javaScriptEnabled={true}
+//                 startInLoadingState={true}
+//               />
+//             )}
+//           </SafeAreaView>
+//         </Modal>
+
+//         <PaymentSuccessModal
+//           visible={showSuccessModal}
+//           onClose={() => {
+//             setShowSuccessModal(false);
+//             router.push("/(root)/Cart");
+//           }}
+//           transactionId={transactionId}
+//         />
+//         <PaymentFailureModal
+//           visible={showFailureModal}
+//           onClose={() => setShowFailureModal(false)}
+//           errorMessage={paymentError}
+//           transactionId={transactionId}
+//         />
+//       </KeyboardAvoidingView>
+//       <Toast />
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   safeArea: { flex: 1, backgroundColor: "#f9fafb" },
+//   container: { flex: 1 },
+//   contentContainer: { padding: 16, paddingBottom: 100 },
+//   header: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     paddingVertical: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f0f0f0",
+//     backgroundColor: "#f9fafb",
+//   },
+//   backButton: { padding: 4 },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#1f2937",
+//     marginLeft: 16,
+//   },
+//   formContainer: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   section: { marginBottom: 24 },
+//   sectionTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#e5e7eb",
+//     paddingBottom: 4,
+//   },
+//   formTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//   },
+//   formField: { marginBottom: 16 },
+//   inputLabelContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 6,
+//     marginBottom: 4,
+//   },
+//   inputLabel: { fontSize: 14, fontFamily: "Cairo-SemiBold", color: "#4b5563" },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: "#e5e7eb",
+//     borderRadius: 8,
+//     padding: 12,
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#1f2937",
+//     backgroundColor: "#fafafa",
+//   },
+//   inputError: { borderColor: "#ef4444" },
+//   errorText: {
+//     color: "#ef4444",
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     marginTop: 4,
+//   },
+//   helperText: {
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     color: "#6b7280",
+//     marginTop: 4,
+//   },
+//   deliveryNote: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#10B981",
+//     marginBottom: 16,
+//     textAlign: "center",
+//     backgroundColor: "#f0fdf4",
+//     padding: 8,
+//     borderRadius: 8,
+//   },
+//   card: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   cardTitleContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 16,
+//   },
+//   cardTitle: { fontSize: 18, fontFamily: "Cairo-SemiBold", color: "#1f2937" },
+//   itemCount: { fontSize: 14, fontFamily: "Cairo", color: "#6b7280" },
+//   itemRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     paddingBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f1f5f9",
+//   },
+//   itemDetails: { flex: 1, paddingRight: 8 },
+//   itemName: {
+//     fontSize: 15,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//     marginBottom: 4,
+//   },
+//   itemQuantity: { fontSize: 13, fontFamily: "Cairo", color: "#6b7280" },
+//   itemPrice: { fontSize: 15, fontFamily: "Cairo-Bold", color: "#374151" },
+//   summaryContainer: {
+//     marginTop: 16,
+//     paddingTop: 16,
+//     borderTopWidth: 1,
+//     borderTopColor: "#e5e7eb",
+//   },
+//   divider: { height: 1, backgroundColor: "#e5e7eb", marginVertical: 12 },
+//   securityCard: {
+//     backgroundColor: "#f0fdf4",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 24,
+//     borderWidth: 1,
+//     borderColor: "#86efac",
+//   },
+//   securityHeader: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     gap: 8,
+//   },
+//   securityTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#047857",
+//   },
+//   securityText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#4B5563",
+//     lineHeight: 22,
+//   },
+//   payButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 12,
+//     padding: 18,
+//     alignItems: "center",
+//     justifyContent: "center",
+//     marginBottom: 12,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//   },
+//   payButtonDisabled: { opacity: 0.6 },
+//   payButtonContent: { flexDirection: "row", alignItems: "center", gap: 10 },
+//   payButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   modalBackground: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   modalContainer: { flex: 1, backgroundColor: "#fff" },
+//   modalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   successModalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "90%",
+//     maxWidth: 350,
+//   },
+//   lottieAnimation: { width: 200, height: 200 },
+//   failureModal: { borderColor: "#E53935", borderWidth: 2 },
+//   modalTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   modalText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   modalButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 8,
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     marginTop: 24,
+//   },
+//   modalButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   webView: { flex: 1 },
+//   webViewHeader: {
+//     height: 56,
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#E5E7EB",
+//     backgroundColor: "#f9fafb",
+//   },
+//   webViewCloseButton: { padding: 8 },
+//   webViewTitleContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 8,
+//     flex: 1,
+//     justifyContent: "center",
+//     marginRight: 40,
+//   },
+//   webViewTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+//   loadingOverlay: {
+//     position: "absolute",
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     backgroundColor: "rgba(255,255,255,0.95)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     zIndex: 1000,
+//   },
+//   loadingCard: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   loadingTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   loadingSubtext: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   errorValue: { fontSize: 14, fontFamily: "Cairo", color: "#DC2626" },
+//   shippingFeeRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginVertical: 4,
+//   },
+//   shippingFeeValueContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "flex-end",
+//   },
+//   summaryLabel: { fontSize: 14, fontFamily: "Cairo", color: "#4b5563" },
+//   summaryValue: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+// });
+
+/****************************************/
+
+// import React, { useState, useEffect, useRef, useCallback } from "react";
+// import {
+//   View,
+//   Text,
+//   ScrollView,
+//   Alert,
+//   ActivityIndicator,
+//   StyleSheet,
+//   Platform,
+//   TouchableOpacity,
+//   SafeAreaView,
+//   Modal,
+//   StatusBar,
+//   TextInput,
+//   KeyboardAvoidingView,
+//   BackHandler,
+// } from "react-native";
+// import { router, useNavigation } from "expo-router";
+// import { WebView } from "react-native-webview";
+// import { useFocusEffect } from "@react-navigation/native";
+// import {
+//   Shield,
+//   CreditCard,
+//   ArrowLeft,
+//   Lock,
+//   ChevronLeft,
+//   XCircle,
+//   User,
+//   Phone,
+//   Mail,
+//   MapPin,
+// } from "lucide-react-native";
+// import Toast from "react-native-toast-message";
+// import NetInfo from "@react-native-community/netinfo";
+// import * as SecureStore from "expo-secure-store";
+// import useCartStore from "../../store/cartStore";
+// import { OrderSummaryRow } from "../Components/OrderSummary";
+// import useShippingFee from "../hooks/useShippingFee";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import LottieView from "lottie-react-native";
+// import { useUserContext } from "../contexts/UserContext";
+// import publicIP from "react-native-public-ip";
+
+// const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+// const STRAPI_API_URL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_STRAPI_API_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app";
+// const SURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/success";
+// const FURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/failure";
+// const FORM_DATA_KEY =
+//   process.env.EXPO_PUBLIC_FORM_DATA_KEY || "user_checkout_info";
+// const REQUEST_TIMEOUT =
+//   Number(process.env.EXPO_PUBLIC_REQUEST_TIMEOUT) || 30000;
+
+// const PaymentSuccessModal: React.FC<{
+//   visible: boolean;
+//   onClose: () => void;
+//   transactionId: string | null;
+// }> = ({ visible, onClose, transactionId }) => {
+//   const animationRef = useRef<LottieView>(null);
+
+//   useEffect(() => {
+//     if (visible && animationRef.current) animationRef.current.play();
+//   }, [visible]);
+
+//   return (
+//     <Modal
+//       visible={visible}
+//       transparent={true}
+//       animationType="fade"
+//       onRequestClose={onClose}
+//     >
+//       <View style={styles.modalBackground}>
+//         <View style={styles.successModalContent}>
+//           <LottieView
+//             ref={animationRef}
+//             source={require("../../assets/lotties/payment-success.json")}
+//             style={styles.lottieAnimation}
+//             loop={false}
+//             onAnimationFinish={onClose}
+//           />
+//           <Text style={styles.modalTitle}>Payment Successful!</Text>
+//           <Text style={styles.modalText}>
+//             Thank you for your purchase. Transaction ID: {transactionId}
+//           </Text>
+//           <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+//             <Text style={styles.modalButtonText}>Back to Cart</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// };
+
+// const PaymentFailureModal: React.FC<{
+//   visible: boolean;
+//   onClose: () => void;
+//   errorMessage: string | null;
+//   transactionId: string | null;
+// }> = ({ visible, onClose, errorMessage, transactionId }) => (
+//   <Modal
+//     visible={visible}
+//     transparent={true}
+//     animationType="fade"
+//     onRequestClose={onClose}
+//   >
+//     <View style={styles.modalBackground}>
+//       <View style={[styles.modalContent, styles.failureModal]}>
+//         <XCircle size={48} color="#E53935" />
+//         <Text style={styles.modalTitle}>Payment Failed</Text>
+//         <Text style={styles.modalText}>
+//           {errorMessage || "An error occurred during payment."}
+//           {transactionId && `\nTransaction ID: ${transactionId}`}
+//         </Text>
+//         <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+//           <Text style={styles.modalButtonText}>Try Again</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   </Modal>
+// );
+
+// const PaymentLoadingOverlay: React.FC = () => (
+//   <View style={styles.loadingOverlay}>
+//     <View style={styles.loadingCard}>
+//       <ActivityIndicator size="large" color="#10B981" />
+//       <Text style={styles.loadingTitle}>Processing Payment</Text>
+//       <Text style={styles.loadingSubtext}>Please don't close this window</Text>
+//     </View>
+//   </View>
+// );
+
+// const REQUIRED_FIELDS = [
+//   "firstName",
+//   "lastName",
+//   "phone",
+//   "email",
+//   "state",
+//   "city",
+//   "address",
+// ];
+// const PHONE_REGEX = /^\d{8,}$/;
+// const EMAIL_REGEX = /\S+@\S+\.\S+/;
+
+// const saveFormData = async (data: any) => {
+//   await SecureStore.setItemAsync(FORM_DATA_KEY, JSON.stringify(data));
+// };
+
+// const loadFormData = async () => {
+//   const savedData = await SecureStore.getItemAsync(FORM_DATA_KEY);
+//   return savedData ? JSON.parse(savedData) : null;
+// };
+
+// export default function CheckoutPage() {
+//   const insets = useSafeAreaInsets();
+//   const navigation = useNavigation();
+//   const { items, total, discountedTotal, appliedCoupon, clearCart } =
+//     useCartStore();
+//   const {
+//     shippingFee,
+//     loading: isLoadingShippingFee,
+//     error: shippingFeeError,
+//   } = useShippingFee();
+//   const { userData } = useUserContext();
+
+//   const [formData, setFormData] = useState({
+//     firstName: "",
+//     lastName: "",
+//     phone: "",
+//     email: "",
+//     state: "",
+//     city: "",
+//     address: "",
+//   });
+//   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+//   const [isProcessing, setIsProcessing] = useState(false);
+//   const [paymentError, setPaymentError] = useState<string | null>(null);
+//   const [showWebView, setShowWebView] = useState(false);
+//   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+//   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+//   const [showSuccessModal, setShowSuccessModal] = useState(false);
+//   const [showFailureModal, setShowFailureModal] = useState(false);
+//   const [transactionId, setTransactionId] = useState<string | null>(null);
+//   const [isOrderCreated, setIsOrderCreated] = useState(false);
+//   const [ipAddress, setIpAddress] = useState("");
+
+//   useEffect(() => {
+//     const loadSavedData = async () => {
+//       const savedData = await loadFormData();
+//       if (savedData) setFormData(savedData);
+//       if (userData && !userData.isGuestMode) {
+//         setFormData((prev) => ({
+//           ...prev,
+//           firstName: userData.firstName || "",
+//           lastName: userData.lastName || "",
+//           email: userData.email || "",
+//           phone: userData.phone || "",
+//         }));
+//       }
+//     };
+//     loadSavedData();
+//   }, [userData]);
+
+//   useEffect(() => {
+//     if (items.length === 0) router.replace("/(root)/Cart");
+//   }, [items.length]);
+
+//   useEffect(() => {
+//     const fetchIp = async () => {
+//       const ip = await publicIP();
+//       setIpAddress(ip || "192.168.8.125");
+//     };
+//     fetchIp();
+//   }, []);
+
+//   const validateForm = () => {
+//     const errors: Record<string, string> = {};
+//     let isValid = true;
+
+//     REQUIRED_FIELDS.forEach((field) => {
+//       if (!formData[field as keyof typeof formData].trim()) {
+//         errors[field] = `${
+//           field.charAt(0).toUpperCase() + field.slice(1)
+//         } is required`;
+//         isValid = false;
+//       }
+//     });
+
+//     if (formData.email && !EMAIL_REGEX.test(formData.email)) {
+//       errors.email = "Invalid email address";
+//       isValid = false;
+//     }
+
+//     const cleanPhone = formData.phone.replace(/[^\d]/g, "");
+//     if (formData.phone && !PHONE_REGEX.test(cleanPhone)) {
+//       errors.phone = "Phone number must be at least 8 digits";
+//       isValid = false;
+//     }
+
+//     setFormErrors(errors);
+//     if (!isValid) {
+//       Toast.show({
+//         type: "error",
+//         text1: "Form Validation Error",
+//         text2: "Please fill in all required fields correctly",
+//         position: "top",
+//       });
+//     }
+//     return isValid;
+//   };
+
+//   const handleBackPress = useCallback(() => {
+//     if (showWebView) {
+//       Alert.alert(
+//         "Cancel Payment?",
+//         "Are you sure you want to cancel? This payment will not be processed.",
+//         [
+//           { text: "Continue Payment", style: "cancel" },
+//           {
+//             text: "Cancel Payment",
+//             style: "destructive",
+//             onPress: () => {
+//               setShowWebView(false);
+//               setPaymentUrl(null);
+//               setShowFailureModal(true);
+//             },
+//           },
+//         ]
+//       );
+//       return true;
+//     }
+//     router.push("/(root)/Cart");
+//     return true;
+//   }, [showWebView]);
+
+//   useEffect(() => {
+//     const backHandler = BackHandler.addEventListener(
+//       "hardwareBackPress",
+//       handleBackPress
+//     );
+//     return () => backHandler.remove();
+//   }, [handleBackPress]);
+
+//   useFocusEffect(
+//     useCallback(() => {
+//       navigation.setOptions({
+//         gestureEnabled: !showWebView,
+//         headerShown: false,
+//       });
+//     }, [showWebView])
+//   );
+
+//   const handlePaymentSuccess = async (txnId: string) => {
+//     if (isOrderCreated) return;
+//     setIsOrderCreated(true);
+//     setTransactionId(txnId);
+
+//     const orderId = `TX${new Date()
+//       .toISOString()
+//       .replace(/[^0-9]/g, "")
+//       .slice(0, 14)}${Math.random().toString(36).slice(2, 6)}`;
+//     const subtotal = total;
+//     const discountAmount = appliedCoupon
+//       ? appliedCoupon.type === "percentage"
+//         ? (total * appliedCoupon.amount) / 100
+//         : appliedCoupon.amount
+//       : 0;
+//     const orderTotal = (discountedTotal || total) + shippingFee;
+
+//     const orderData = {
+//       data: {
+//         orderId,
+//         OrderStatus: "Pending",
+//         subtotal: Number(subtotal.toFixed(2)),
+//         discountAmount: Number(discountAmount.toFixed(2)),
+//         shippingFee: Number(shippingFee.toFixed(2)),
+//         OrderTotal: Number(orderTotal.toFixed(2)),
+//         OrderDetails: JSON.stringify(items),
+//         shippingInfo: JSON.stringify({
+//           state: formData.state,
+//           city: formData.city,
+//           address: formData.address,
+//           phone: formData.phone,
+//         }),
+//         paymentStatus: "success",
+//         paymentId: orderId,
+//         isGuestOrder: userData?.isGuestMode || !userData,
+//         guestInfo:
+//           userData?.isGuestMode || !userData
+//             ? JSON.stringify({
+//                 firstName: formData.firstName,
+//                 lastName: formData.lastName,
+//                 email: formData.email,
+//                 phone: formData.phone,
+//               })
+//             : null,
+//         auth: userData && !userData.isGuestMode ? userData.strapiId : null,
+//       },
+//     };
+
+//     const response = await fetch(`${STRAPI_API_URL}/api/orders`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_USER}`,
+//       },
+//       body: JSON.stringify(orderData),
+//     });
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`Failed to create order in Strapi: ${errorText}`);
+//     }
+
+//     await saveFormData(formData);
+//     clearCart();
+//     setShowWebView(false);
+//     setPaymentUrl(null);
+//     Toast.show({
+//       type: "success",
+//       text1: "Payment Successful",
+//       text2: "Thank you for your purchase!",
+//       position: "top",
+//     });
+//     setShowSuccessModal(true);
+//   };
+
+//   const handlePaymentFailure = (
+//     errorMessage: string | null,
+//     txnId: string | null
+//   ) => {
+//     setShowWebView(false);
+//     setPaymentUrl(null);
+//     setTransactionId(txnId);
+//     setPaymentError(errorMessage || "Payment failed. Please try again.");
+//     setShowFailureModal(true);
+//   };
+
+//   const handlePaymentError = (errorMessage: string) => {
+//     setPaymentError(errorMessage);
+//     setShowFailureModal(true);
+//   };
+
+//   const formatAmount = (amount: number) => Number(amount.toFixed(2)).toString();
+
+//   const subtotal = total;
+//   const discount = appliedCoupon
+//     ? appliedCoupon.type === "percentage"
+//       ? (total * appliedCoupon.amount) / 100
+//       : appliedCoupon.amount
+//     : 0;
+//   const finalTotal = (discountedTotal || total) + shippingFee;
+
+//   const handlePayment = async () => {
+//     if (isProcessing || !validateForm()) return;
+
+//     try {
+//       const netInfo = await NetInfo.fetch();
+//       if (!netInfo.isConnected)
+//         throw new Error("No internet connection detected");
+
+//       setIsProcessing(true);
+//       setPaymentError(null);
+
+//       const customerInfo = {
+//         name: `${formData.firstName} ${formData.lastName}`,
+//         phone: formData.phone,
+//         platform: Platform.OS,
+//       };
+
+//       const controller = new AbortController();
+//       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+//       const response = await fetch(`${STRAPI_API_URL}/api/payments/initiate`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           amount: finalTotal,
+//           customerInfo,
+//           ipAddress,
+//         }),
+//         signal: controller.signal,
+//       });
+
+//       clearTimeout(timeoutId);
+
+//       if (!response.ok) {
+//         const errorText = await response.text();
+//         throw new Error(
+//           `Payment initiation error: ${response.status} - ${errorText}`
+//         );
+//       }
+
+//       const data = await response.json();
+//       const paymentUrl = data.paymentUrl;
+
+//       if (!paymentUrl || !paymentUrl.startsWith("https://"))
+//         throw new Error("Invalid or insecure payment URL received");
+
+//       setPaymentUrl(paymentUrl);
+//       setShowWebView(true);
+
+//       setTimeout(() => {
+//         if (showWebView) checkPaymentStatus(data.merchantTxnId);
+//       }, 60000);
+//     } catch (error: any) {
+//       let errorMessage = "Payment initiation failed";
+//       if (error.name === "AbortError")
+//         errorMessage = "Request timed out. Please try again.";
+//       else if (error.message) errorMessage = error.message;
+//       console.error("Payment Error:", error);
+//       setPaymentError(errorMessage);
+//       handlePaymentError(errorMessage);
+//     } finally {
+//       setIsProcessing(false);
+//     }
+//   };
+
+//   const checkPaymentStatus = async (merchantTxnId: string) => {
+//     const response = await fetch(
+//       `${STRAPI_API_URL}/api/payments/verify/${merchantTxnId}`
+//     );
+//     const data = await response.json();
+//     if (data.finalStatus === "success") {
+//       handlePaymentSuccess(data.txnId);
+//     } else if (
+//       data.finalStatus === "failed" ||
+//       data.finalStatus === "cancelled"
+//     ) {
+//       handlePaymentFailure(data.errorMessage || "Payment failed", data.txnId);
+//     }
+//   };
+
+//   if (items.length === 0) return null;
+
+//   return (
+//     <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+//       <KeyboardAvoidingView
+//         behavior={Platform.OS === "ios" ? "padding" : "height"}
+//         style={styles.container}
+//       >
+//         <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
+//         <View style={styles.header}>
+//           <TouchableOpacity
+//             onPress={handleBackPress}
+//             style={styles.backButton}
+//             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//           >
+//             <ChevronLeft color="#E53935" size={28} />
+//           </TouchableOpacity>
+//           <Text style={styles.headerTitle}>Secure Checkout</Text>
+//         </View>
+
+//         <ScrollView
+//           style={styles.container}
+//           contentContainerStyle={styles.contentContainer}
+//           showsVerticalScrollIndicator={false}
+//         >
+//           <View style={styles.formContainer}>
+//             <Text style={styles.formTitle}>Delivery Information</Text>
+//             <Text style={styles.deliveryNote}>
+//               Orders will be delivered within the next business day.
+//             </Text>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Personal Information</Text>
+//               {[
+//                 { field: "firstName", label: "First Name *", Icon: User },
+//                 { field: "lastName", label: "Last Name *", Icon: User },
+//                 { field: "email", label: "Email *", Icon: Mail },
+//                 { field: "phone", label: "Phone Number *", Icon: Phone },
+//               ].map(({ field, label, Icon }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <Icon size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field as keyof typeof formData]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         [field]:
+//                           field === "phone" ? text.replace(/[^\d]/g, "") : text,
+//                       }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     keyboardType={
+//                       field === "email"
+//                         ? "email-address"
+//                         : field === "phone"
+//                         ? "phone-pad"
+//                         : "default"
+//                     }
+//                     autoCapitalize={field === "email" ? "none" : "words"}
+//                     maxLength={field === "phone" ? 15 : undefined}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                   {field === "phone" && !formErrors.phone && (
+//                     <Text style={styles.helperText}>
+//                       Enter your Kuwait mobile number (minimum 8 digits)
+//                     </Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Delivery Address</Text>
+//               {[
+//                 { field: "state", label: "State *" },
+//                 { field: "city", label: "City *" },
+//                 {
+//                   field: "address",
+//                   label: "Delivery Address *",
+//                   multiline: true,
+//                 },
+//               ].map(({ field, label, multiline }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <MapPin size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field as keyof typeof formData]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({ ...prev, [field]: text }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     multiline={multiline}
+//                     numberOfLines={multiline ? 3 : 1}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+//           </View>
+
+//           <View style={styles.card}>
+//             <View style={styles.cardTitleContainer}>
+//               <Text style={styles.cardTitle}>Order Summary</Text>
+//               <Text style={styles.itemCount}>{items.length} items</Text>
+//             </View>
+//             {items.map((item) => (
+//               <View key={item.documentId} style={styles.itemRow}>
+//                 <View style={styles.itemDetails}>
+//                   <Text style={styles.itemName} numberOfLines={1}>
+//                     {item.name}
+//                   </Text>
+//                   <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+//                 </View>
+//                 <Text style={styles.itemPrice}>
+//                   {((item.salesPrice || item.price) * item.quantity).toFixed(2)}{" "}
+//                   KWD
+//                 </Text>
+//               </View>
+//             ))}
+
+//             <View style={styles.summaryContainer}>
+//               <OrderSummaryRow
+//                 label="Subtotal"
+//                 value={`${subtotal.toFixed(2)} KWD`}
+//               />
+//               {appliedCoupon && (
+//                 <OrderSummaryRow
+//                   label={`Discount (${appliedCoupon.code})`}
+//                   value={`- ${discount.toFixed(2)} KWD`}
+//                   isDiscount
+//                 />
+//               )}
+//               <View style={styles.shippingFeeRow}>
+//                 <Text style={styles.summaryLabel}>Shipping Fee</Text>
+//                 <View style={styles.shippingFeeValueContainer}>
+//                   {isLoadingShippingFee ? (
+//                     <ActivityIndicator size="small" color="#10B981" />
+//                   ) : shippingFeeError ? (
+//                     <Text style={styles.errorValue}>Error loading fee</Text>
+//                   ) : (
+//                     <Text style={styles.summaryValue}>{`${shippingFee.toFixed(
+//                       2
+//                     )} KWD`}</Text>
+//                   )}
+//                 </View>
+//               </View>
+//               <View style={styles.divider} />
+//               <OrderSummaryRow
+//                 label="Total Amount"
+//                 value={`${formatAmount(finalTotal)} KWD`}
+//                 isTotal
+//                 isLoading={isLoadingShippingFee}
+//               />
+//             </View>
+//           </View>
+
+//           <View style={styles.securityCard}>
+//             <View style={styles.securityHeader}>
+//               <Lock size={20} color="#10B981" />
+//               <Text style={styles.securityTitle}>Secure Payment</Text>
+//             </View>
+//             <Text style={styles.securityText}>
+//               • SSL encrypted payment processing • Verified by Bookeey Payment
+//               Gateway • Your payment details are protected
+//             </Text>
+//           </View>
+
+//           <TouchableOpacity
+//             style={[
+//               styles.payButton,
+//               (isProcessing || isLoadingShippingFee) &&
+//                 styles.payButtonDisabled,
+//             ]}
+//             onPress={handlePayment}
+//             disabled={isProcessing || isLoadingShippingFee}
+//           >
+//             {isProcessing ? (
+//               <ActivityIndicator color="white" size="small" />
+//             ) : (
+//               <View style={styles.payButtonContent}>
+//                 <CreditCard size={20} color="white" />
+//                 <Text style={styles.payButtonText}>
+//                   Pay {formatAmount(finalTotal)} KWD
+//                 </Text>
+//               </View>
+//             )}
+//           </TouchableOpacity>
+//           {paymentError && <Text style={styles.errorText}>{paymentError}</Text>}
+//         </ScrollView>
+
+//         <Modal
+//           visible={showWebView}
+//           animationType="slide"
+//           onRequestClose={handleBackPress}
+//         >
+//           <SafeAreaView style={styles.modalContainer}>
+//             <View style={styles.webViewHeader}>
+//               <TouchableOpacity
+//                 onPress={handleBackPress}
+//                 style={styles.webViewCloseButton}
+//                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//               >
+//                 <ArrowLeft color="#E53935" size={24} />
+//               </TouchableOpacity>
+//               <View style={styles.webViewTitleContainer}>
+//                 <Lock size={16} color="#10B981" />
+//                 <Text style={styles.webViewTitle}>Secure Payment</Text>
+//               </View>
+//             </View>
+//             {isWebViewLoading && <PaymentLoadingOverlay />}
+//             {paymentUrl && (
+//               <WebView
+//                 source={{ uri: paymentUrl }}
+//                 onNavigationStateChange={(navState) => {
+//                   if (navState.url.includes(SURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const txnId = params.get("txnId");
+//                     handlePaymentSuccess(txnId!);
+//                   } else if (navState.url.includes(FURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const errorMessage = params.get("errorMessage");
+//                     const txnId = params.get("txnId");
+//                     handlePaymentFailure(errorMessage, txnId);
+//                   }
+//                 }}
+//                 onLoadStart={() => setIsWebViewLoading(true)}
+//                 onLoadEnd={() => setIsWebViewLoading(false)}
+//                 onError={(syntheticEvent) =>
+//                   handlePaymentError(syntheticEvent.nativeEvent.description)
+//                 }
+//                 onHttpError={() => handlePaymentError("Connection error")}
+//                 style={styles.webView}
+//                 incognito={true}
+//                 cacheEnabled={false}
+//                 domStorageEnabled={true}
+//                 javaScriptEnabled={true}
+//                 startInLoadingState={true}
+//               />
+//             )}
+//           </SafeAreaView>
+//         </Modal>
+
+//         <PaymentSuccessModal
+//           visible={showSuccessModal}
+//           onClose={() => {
+//             setShowSuccessModal(false);
+//             router.push("/(root)/Cart");
+//           }}
+//           transactionId={transactionId}
+//         />
+//         <PaymentFailureModal
+//           visible={showFailureModal}
+//           onClose={() => setShowFailureModal(false)}
+//           errorMessage={paymentError}
+//           transactionId={transactionId}
+//         />
+//       </KeyboardAvoidingView>
+//       <Toast />
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   safeArea: { flex: 1, backgroundColor: "#f9fafb" },
+//   container: { flex: 1 },
+//   contentContainer: { padding: 16, paddingBottom: 100 },
+//   header: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     paddingVertical: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f0f0f0",
+//     backgroundColor: "#f9fafb",
+//   },
+//   backButton: { padding: 4 },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#1f2937",
+//     marginLeft: 16,
+//   },
+//   formContainer: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   section: { marginBottom: 24 },
+//   sectionTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#e5e7eb",
+//     paddingBottom: 4,
+//   },
+//   formTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//   },
+//   formField: { marginBottom: 16 },
+//   inputLabelContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 6,
+//     marginBottom: 4,
+//   },
+//   inputLabel: { fontSize: 14, fontFamily: "Cairo-SemiBold", color: "#4b5563" },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: "#e5e7eb",
+//     borderRadius: 8,
+//     padding: 12,
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#1f2937",
+//     backgroundColor: "#fafafa",
+//   },
+//   inputError: { borderColor: "#ef4444" },
+//   errorText: {
+//     color: "#ef4444",
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     marginTop: 4,
+//   },
+//   helperText: {
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     color: "#6b7280",
+//     marginTop: 4,
+//   },
+//   deliveryNote: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#10B981",
+//     marginBottom: 16,
+//     textAlign: "center",
+//     backgroundColor: "#f0fdf4",
+//     padding: 8,
+//     borderRadius: 8,
+//   },
+//   card: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   cardTitleContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 16,
+//   },
+//   cardTitle: { fontSize: 18, fontFamily: "Cairo-SemiBold", color: "#1f2937" },
+//   itemCount: { fontSize: 14, fontFamily: "Cairo", color: "#6b7280" },
+//   itemRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     paddingBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f1f5f9",
+//   },
+//   itemDetails: { flex: 1, paddingRight: 8 },
+//   itemName: {
+//     fontSize: 15,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//     marginBottom: 4,
+//   },
+//   itemQuantity: { fontSize: 13, fontFamily: "Cairo", color: "#6b7280" },
+//   itemPrice: { fontSize: 15, fontFamily: "Cairo-Bold", color: "#374151" },
+//   summaryContainer: {
+//     marginTop: 16,
+//     paddingTop: 16,
+//     borderTopWidth: 1,
+//     borderTopColor: "#e5e7eb",
+//   },
+//   divider: { height: 1, backgroundColor: "#e5e7eb", marginVertical: 12 },
+//   securityCard: {
+//     backgroundColor: "#f0fdf4",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 24,
+//     borderWidth: 1,
+//     borderColor: "#86efac",
+//   },
+//   securityHeader: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     gap: 8,
+//   },
+//   securityTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#047857",
+//   },
+//   securityText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#4B5563",
+//     lineHeight: 22,
+//   },
+//   payButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 12,
+//     padding: 18,
+//     alignItems: "center",
+//     justifyContent: "center",
+//     marginBottom: 12,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//   },
+//   payButtonDisabled: { opacity: 0.6 },
+//   payButtonContent: { flexDirection: "row", alignItems: "center", gap: 10 },
+//   payButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   modalBackground: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   modalContainer: { flex: 1, backgroundColor: "#fff" },
+//   modalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   successModalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "90%",
+//     maxWidth: 350,
+//   },
+//   lottieAnimation: { width: 200, height: 200 },
+//   failureModal: { borderColor: "#E53935", borderWidth: 2 },
+//   modalTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   modalText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   modalButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 8,
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     marginTop: 24,
+//   },
+//   modalButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   webView: { flex: 1 },
+//   webViewHeader: {
+//     height: 56,
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#E5E7EB",
+//     backgroundColor: "#f9fafb",
+//   },
+//   webViewCloseButton: { padding: 8 },
+//   webViewTitleContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 8,
+//     flex: 1,
+//     justifyContent: "center",
+//     marginRight: 40,
+//   },
+//   webViewTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+//   loadingOverlay: {
+//     position: "absolute",
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     backgroundColor: "rgba(255,255,255,0.95)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     zIndex: 1000,
+//   },
+//   loadingCard: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   loadingTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   loadingSubtext: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   errorValue: { fontSize: 14, fontFamily: "Cairo", color: "#DC2626" },
+//   shippingFeeRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginVertical: 4,
+//   },
+//   shippingFeeValueContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "flex-end",
+//   },
+//   summaryLabel: { fontSize: 14, fontFamily: "Cairo", color: "#4b5563" },
+//   summaryValue: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+// });
+
+/************************************ */
+
+// import React, { useState, useEffect, useRef, useCallback } from "react";
+// import {
+//   View,
+//   Text,
+//   ScrollView,
+//   Alert,
+//   ActivityIndicator,
+//   StyleSheet,
+//   Platform,
+//   TouchableOpacity,
+//   SafeAreaView,
+//   Modal,
+//   StatusBar,
+//   TextInput,
+//   KeyboardAvoidingView,
+//   BackHandler,
+// } from "react-native";
+// import { router, useNavigation } from "expo-router";
+// import { WebView } from "react-native-webview";
+// import { useFocusEffect } from "@react-navigation/native";
+// import {
+//   Shield,
+//   CreditCard,
+//   ArrowLeft,
+//   Lock,
+//   ChevronLeft,
+//   XCircle,
+//   User,
+//   Phone,
+//   Mail,
+//   MapPin,
+// } from "lucide-react-native";
+// import Toast from "react-native-toast-message";
+// import NetInfo from "@react-native-community/netinfo";
+// import * as SecureStore from "expo-secure-store";
+// import useCartStore from "../../store/cartStore";
+// import { OrderSummaryRow } from "../Components/OrderSummary";
+// import useShippingFee from "../hooks/useShippingFee";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import LottieView from "lottie-react-native";
+// import { useUserContext } from "../contexts/UserContext";
+// import publicIP from "react-native-public-ip";
+
+// const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+// const STRAPI_API_URL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_STRAPI_API_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app";
+// const SURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/success";
+// const FURL = IS_PRODUCTION
+//   ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+//   : "https://38b5-37-39-178-119.ngrok-free.app/api/payments/failure";
+// const FORM_DATA_KEY =
+//   process.env.EXPO_PUBLIC_FORM_DATA_KEY || "user_checkout_info";
+// const REQUEST_TIMEOUT =
+//   Number(process.env.EXPO_PUBLIC_REQUEST_TIMEOUT) || 30000;
+
+// const PaymentSuccessModal: React.FC<{
+//   visible: boolean;
+//   onClose: () => void;
+//   transactionId: string | null;
+// }> = ({ visible, onClose }) => {
+//   const animationRef = useRef<LottieView>(null);
+
+//   useEffect(() => {
+//     if (visible && animationRef.current) animationRef.current.play();
+//   }, [visible]);
+
+//   return (
+//     <Modal
+//       visible={visible}
+//       transparent={true}
+//       animationType="fade"
+//       onRequestClose={onClose}
+//     >
+//       <View style={styles.modalBackground}>
+//         <View style={styles.successModalContent}>
+//           <LottieView
+//             ref={animationRef}
+//             source={require("../../assets/lotties/payment-success.json")}
+//             style={styles.lottieAnimation}
+//             loop={false}
+//             onAnimationFinish={onClose}
+//           />
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// };
+
+// const PaymentFailureModal: React.FC<{
+//   visible: boolean;
+//   onClose: () => void;
+//   errorMessage: string | null;
+//   transactionId: string | null;
+// }> = ({ visible, onClose, errorMessage, transactionId }) => (
+//   <Modal
+//     visible={visible}
+//     transparent={true}
+//     animationType="fade"
+//     onRequestClose={onClose}
+//   >
+//     <View style={styles.modalBackground}>
+//       <View style={[styles.modalContent, styles.failureModal]}>
+//         <XCircle size={48} color="#E53935" />
+//         <Text style={styles.modalTitle}>Payment Failed</Text>
+//         <Text style={styles.modalText}>
+//           {errorMessage || "An error occurred during payment."}
+//           {transactionId && `\nTransaction ID: ${transactionId}`}
+//         </Text>
+//         <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+//           <Text style={styles.modalButtonText}>Try Again</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   </Modal>
+// );
+
+// const PaymentLoadingOverlay: React.FC = () => (
+//   <View style={styles.loadingOverlay}>
+//     <View style={styles.loadingCard}>
+//       <ActivityIndicator size="large" color="#10B981" />
+//       <Text style={styles.loadingTitle}>Processing Payment</Text>
+//       <Text style={styles.loadingSubtext}>Please don't close this window</Text>
+//     </View>
+//   </View>
+// );
+
+// const REQUIRED_FIELDS = [
+//   "firstName",
+//   "lastName",
+//   "phone",
+//   "email",
+//   "state",
+//   "city",
+//   "address",
+// ];
+// const PHONE_REGEX = /^\d{8,}$/;
+// const EMAIL_REGEX = /\S+@\S+\.\S+/;
+
+// const saveFormData = async (data: any) => {
+//   await SecureStore.setItemAsync(FORM_DATA_KEY, JSON.stringify(data));
+// };
+
+// const loadFormData = async () => {
+//   const savedData = await SecureStore.getItemAsync(FORM_DATA_KEY);
+//   return savedData ? JSON.parse(savedData) : null;
+// };
+
+// export default function CheckoutPage() {
+//   const insets = useSafeAreaInsets();
+//   const navigation = useNavigation();
+//   const { items, total, discountedTotal, appliedCoupon, clearCart } =
+//     useCartStore();
+//   const {
+//     shippingFee,
+//     loading: isLoadingShippingFee,
+//     error: shippingFeeError,
+//   } = useShippingFee();
+//   const { userData } = useUserContext();
+
+//   const [formData, setFormData] = useState({
+//     firstName: "",
+//     lastName: "",
+//     phone: "",
+//     email: "",
+//     state: "",
+//     city: "",
+//     address: "",
+//   });
+//   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+//   const [isProcessing, setIsProcessing] = useState(false);
+//   const [paymentError, setPaymentError] = useState<string | null>(null);
+//   const [showWebView, setShowWebView] = useState(false);
+//   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+//   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+//   const [showSuccessModal, setShowSuccessModal] = useState(false);
+//   const [showFailureModal, setShowFailureModal] = useState(false);
+//   const [transactionId, setTransactionId] = useState<string | null>(null);
+//   const [isOrderCreated, setIsOrderCreated] = useState(false);
+//   const [ipAddress, setIpAddress] = useState("");
+
+//   useEffect(() => {
+//     const loadSavedData = async () => {
+//       const savedData = await loadFormData();
+//       if (savedData) setFormData(savedData);
+//       if (userData && !userData.isGuestMode) {
+//         setFormData((prev) => ({
+//           ...prev,
+//           firstName: userData.firstName || "",
+//           lastName: userData.lastName || "",
+//           email: userData.email || "",
+//           phone: userData.phone || "",
+//         }));
+//       }
+//     };
+//     loadSavedData();
+//   }, [userData]);
+
+//   useEffect(() => {
+//     if (items.length === 0) router.replace("/(root)/Cart");
+//   }, [items.length]);
+
+//   useEffect(() => {
+//     const fetchIp = async () => {
+//       const ip = await publicIP();
+//       setIpAddress(ip || "192.168.8.125");
+//     };
+//     fetchIp();
+//   }, []);
+
+//   const validateForm = () => {
+//     const errors: Record<string, string> = {};
+//     let isValid = true;
+
+//     REQUIRED_FIELDS.forEach((field) => {
+//       if (!formData[field as keyof typeof formData].trim()) {
+//         errors[field] = `${
+//           field.charAt(0).toUpperCase() + field.slice(1)
+//         } is required`;
+//         isValid = false;
+//       }
+//     });
+
+//     if (formData.email && !EMAIL_REGEX.test(formData.email)) {
+//       errors.email = "Invalid email address";
+//       isValid = false;
+//     }
+
+//     const cleanPhone = formData.phone.replace(/[^\d]/g, "");
+//     if (formData.phone && !PHONE_REGEX.test(cleanPhone)) {
+//       errors.phone = "Phone number must be at least 8 digits";
+//       isValid = false;
+//     }
+
+//     setFormErrors(errors);
+//     if (!isValid) {
+//       Toast.show({
+//         type: "error",
+//         text1: "Form Validation Error",
+//         text2: "Please fill in all required fields correctly",
+//         position: "top",
+//       });
+//     }
+//     return isValid;
+//   };
+
+//   const handleBackPress = useCallback(() => {
+//     if (showWebView) {
+//       Alert.alert(
+//         "Cancel Payment?",
+//         "Are you sure you want to cancel? This payment will not be processed.",
+//         [
+//           { text: "Continue Payment", style: "cancel" },
+//           {
+//             text: "Cancel Payment",
+//             style: "destructive",
+//             onPress: () => {
+//               setShowWebView(false);
+//               setPaymentUrl(null);
+//               setShowFailureModal(true);
+//             },
+//           },
+//         ]
+//       );
+//       return true;
+//     }
+//     router.push("/(root)/Cart");
+//     return true;
+//   }, [showWebView]);
+
+//   useEffect(() => {
+//     const backHandler = BackHandler.addEventListener(
+//       "hardwareBackPress",
+//       handleBackPress
+//     );
+//     return () => backHandler.remove();
+//   }, [handleBackPress]);
+
+//   useFocusEffect(
+//     useCallback(() => {
+//       navigation.setOptions({
+//         gestureEnabled: !showWebView,
+//         headerShown: false,
+//       });
+//     }, [showWebView])
+//   );
+
+//   const handlePaymentSuccess = async (txnId: string) => {
+//     if (isOrderCreated) return;
+//     setIsOrderCreated(true);
+//     setTransactionId(txnId);
+
+//     const orderId = `TX${new Date()
+//       .toISOString()
+//       .replace(/[^0-9]/g, "")
+//       .slice(0, 14)}${Math.random().toString(36).slice(2, 6)}`;
+//     const subtotal = total;
+//     const discountAmount = appliedCoupon
+//       ? appliedCoupon.type === "percentage"
+//         ? (total * appliedCoupon.amount) / 100
+//         : appliedCoupon.amount
+//       : 0;
+//     const orderTotal = (discountedTotal || total) + shippingFee;
+
+//     const orderData = {
+//       data: {
+//         orderId,
+//         OrderStatus: "Pending",
+//         subtotal: Number(subtotal.toFixed(2)),
+//         discountAmount: Number(discountAmount.toFixed(2)),
+//         shippingFee: Number(shippingFee.toFixed(2)),
+//         OrderTotal: Number(orderTotal.toFixed(2)),
+//         OrderDetails: JSON.stringify(items),
+//         shippingInfo: JSON.stringify({
+//           state: formData.state,
+//           city: formData.city,
+//           address: formData.address,
+//           phone: formData.phone,
+//         }),
+//         paymentStatus: "success",
+//         paymentId: orderId,
+//         isGuestOrder: userData?.isGuestMode || !userData,
+//         guestInfo:
+//           userData?.isGuestMode || !userData
+//             ? JSON.stringify({
+//                 firstName: formData.firstName,
+//                 lastName: formData.lastName,
+//                 email: formData.email,
+//                 phone: formData.phone,
+//               })
+//             : null,
+//         auth: userData && !userData.isGuestMode ? userData.strapiId : null,
+//       },
+//     };
+
+//     const response = await fetch(`${STRAPI_API_URL}/api/orders`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_USER}`,
+//       },
+//       body: JSON.stringify(orderData),
+//     });
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`Failed to create order in Strapi: ${errorText}`);
+//     }
+
+//     await saveFormData(formData);
+//     clearCart();
+//     setShowWebView(false);
+//     setPaymentUrl(null);
+//     Toast.show({
+//       type: "success",
+//       text1: "Payment Successful",
+//       text2: "Thank you for your purchase!",
+//       position: "top",
+//     });
+//     setShowSuccessModal(true);
+//   };
+
+//   const handlePaymentFailure = (
+//     errorMessage: string | null,
+//     txnId: string | null
+//   ) => {
+//     setShowWebView(false);
+//     setPaymentUrl(null);
+//     setTransactionId(txnId);
+//     setPaymentError(errorMessage || "Payment failed. Please try again.");
+//     setShowFailureModal(true);
+//   };
+
+//   const handlePaymentError = (errorMessage: string) => {
+//     setPaymentError(errorMessage);
+//     setShowFailureModal(true);
+//   };
+
+//   const formatAmount = (amount: number) => Number(amount.toFixed(2)).toString();
+
+//   const subtotal = total;
+//   const discount = appliedCoupon
+//     ? appliedCoupon.type === "percentage"
+//       ? (total * appliedCoupon.amount) / 100
+//       : appliedCoupon.amount
+//     : 0;
+//   const finalTotal = (discountedTotal || total) + shippingFee;
+
+//   const handlePayment = async () => {
+//     if (isProcessing || !validateForm()) return;
+
+//     try {
+//       const netInfo = await NetInfo.fetch();
+//       if (!netInfo.isConnected)
+//         throw new Error("No internet connection detected");
+
+//       setIsProcessing(true);
+//       setPaymentError(null);
+
+//       const customerInfo = {
+//         name: `${formData.firstName} ${formData.lastName}`,
+//         phone: formData.phone,
+//         platform: Platform.OS,
+//       };
+
+//       const controller = new AbortController();
+//       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+//       const response = await fetch(`${STRAPI_API_URL}/api/payments/initiate`, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           amount: finalTotal,
+//           customerInfo,
+//           ipAddress,
+//         }),
+//         signal: controller.signal,
+//       });
+
+//       clearTimeout(timeoutId);
+
+//       if (!response.ok) {
+//         const errorText = await response.text();
+//         throw new Error(
+//           `Payment initiation error: ${response.status} - ${errorText}`
+//         );
+//       }
+
+//       const data = await response.json();
+//       const paymentUrl = data.paymentUrl;
+
+//       if (!paymentUrl || !paymentUrl.startsWith("https://"))
+//         throw new Error("Invalid or insecure payment URL received");
+
+//       setPaymentUrl(paymentUrl);
+//       setShowWebView(true);
+
+//       setTimeout(() => {
+//         if (showWebView) checkPaymentStatus(data.merchantTxnId);
+//       }, 60000);
+//     } catch (error: any) {
+//       let errorMessage = "Payment initiation failed";
+//       if (error.name === "AbortError")
+//         errorMessage = "Request timed out. Please try again.";
+//       else if (error.message) errorMessage = error.message;
+//       console.error("Payment Error:", error);
+//       setPaymentError(errorMessage);
+//       handlePaymentError(errorMessage);
+//     } finally {
+//       setIsProcessing(false);
+//     }
+//   };
+
+//   const checkPaymentStatus = async (merchantTxnId: string) => {
+//     const response = await fetch(
+//       `${STRAPI_API_URL}/api/payments/verify/${merchantTxnId}`
+//     );
+//     const data = await response.json();
+//     if (data.finalStatus === "success") {
+//       handlePaymentSuccess(data.txnId);
+//     } else if (
+//       data.finalStatus === "failed" ||
+//       data.finalStatus === "cancelled"
+//     ) {
+//       handlePaymentFailure(data.errorMessage || "Payment failed", data.txnId);
+//     }
+//   };
+
+//   if (items.length === 0) return null;
+
+//   return (
+//     <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+//       <KeyboardAvoidingView
+//         behavior={Platform.OS === "ios" ? "padding" : "height"}
+//         style={styles.container}
+//       >
+//         <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
+//         <View style={styles.header}>
+//           <TouchableOpacity
+//             onPress={handleBackPress}
+//             style={styles.backButton}
+//             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//           >
+//             <ChevronLeft color="#E53935" size={28} />
+//           </TouchableOpacity>
+//           <Text style={styles.headerTitle}>Secure Checkout</Text>
+//         </View>
+
+//         <ScrollView
+//           style={styles.container}
+//           contentContainerStyle={styles.contentContainer}
+//           showsVerticalScrollIndicator={false}
+//         >
+//           <View style={styles.formContainer}>
+//             <Text style={styles.formTitle}>Delivery Information</Text>
+//             <Text style={styles.deliveryNote}>
+//               Orders will be delivered within the next business day.
+//             </Text>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Personal Information</Text>
+//               {[
+//                 { field: "firstName", label: "First Name *", Icon: User },
+//                 { field: "lastName", label: "Last Name *", Icon: User },
+//                 { field: "email", label: "Email *", Icon: Mail },
+//                 { field: "phone", label: "Phone Number *", Icon: Phone },
+//               ].map(({ field, label, Icon }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <Icon size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field as keyof typeof formData]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({
+//                         ...prev,
+//                         [field]:
+//                           field === "phone" ? text.replace(/[^\d]/g, "") : text,
+//                       }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     keyboardType={
+//                       field === "email"
+//                         ? "email-address"
+//                         : field === "phone"
+//                         ? "phone-pad"
+//                         : "default"
+//                     }
+//                     autoCapitalize={field === "email" ? "none" : "words"}
+//                     maxLength={field === "phone" ? 15 : undefined}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                   {field === "phone" && !formErrors.phone && (
+//                     <Text style={styles.helperText}>
+//                       Enter your Kuwait mobile number (minimum 8 digits)
+//                     </Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Delivery Address</Text>
+//               {[
+//                 { field: "state", label: "State *" },
+//                 { field: "city", label: "City *" },
+//                 {
+//                   field: "address",
+//                   label: "Delivery Address *",
+//                   multiline: true,
+//                 },
+//               ].map(({ field, label, multiline }) => (
+//                 <View key={field} style={styles.formField}>
+//                   <View style={styles.inputLabelContainer}>
+//                     <MapPin size={16} color="#4b5563" />
+//                     <Text style={styles.inputLabel}>{label}</Text>
+//                   </View>
+//                   <TextInput
+//                     style={[
+//                       styles.input,
+//                       formErrors[field] && styles.inputError,
+//                     ]}
+//                     value={formData[field as keyof typeof formData]}
+//                     onChangeText={(text) =>
+//                       setFormData((prev) => ({ ...prev, [field]: text }))
+//                     }
+//                     placeholder={`Enter your ${field}`}
+//                     multiline={multiline}
+//                     numberOfLines={multiline ? 3 : 1}
+//                   />
+//                   {formErrors[field] && (
+//                     <Text style={styles.errorText}>{formErrors[field]}</Text>
+//                   )}
+//                 </View>
+//               ))}
+//             </View>
+//           </View>
+
+//           <View style={styles.card}>
+//             <View style={styles.cardTitleContainer}>
+//               <Text style={styles.cardTitle}>Order Summary</Text>
+//               <Text style={styles.itemCount}>{items.length} items</Text>
+//             </View>
+//             {items.map((item) => (
+//               <View key={item.documentId} style={styles.itemRow}>
+//                 <View style={styles.itemDetails}>
+//                   <Text style={styles.itemName} numberOfLines={1}>
+//                     {item.name}
+//                   </Text>
+//                   <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+//                 </View>
+//                 <Text style={styles.itemPrice}>
+//                   {((item.salesPrice || item.price) * item.quantity).toFixed(2)}{" "}
+//                   KWD
+//                 </Text>
+//               </View>
+//             ))}
+
+//             <View style={styles.summaryContainer}>
+//               <OrderSummaryRow
+//                 label="Subtotal"
+//                 value={`${subtotal.toFixed(2)} KWD`}
+//               />
+//               {appliedCoupon && (
+//                 <OrderSummaryRow
+//                   label={`Discount (${appliedCoupon.code})`}
+//                   value={`- ${discount.toFixed(2)} KWD`}
+//                   isDiscount
+//                 />
+//               )}
+//               <View style={styles.shippingFeeRow}>
+//                 <Text style={styles.summaryLabel}>Shipping Fee</Text>
+//                 <View style={styles.shippingFeeValueContainer}>
+//                   {isLoadingShippingFee ? (
+//                     <ActivityIndicator size="small" color="#10B981" />
+//                   ) : shippingFeeError ? (
+//                     <Text style={styles.errorValue}>Error loading fee</Text>
+//                   ) : (
+//                     <Text style={styles.summaryValue}>{`${shippingFee.toFixed(
+//                       2
+//                     )} KWD`}</Text>
+//                   )}
+//                 </View>
+//               </View>
+//               <View style={styles.divider} />
+//               <OrderSummaryRow
+//                 label="Total Amount"
+//                 value={`${formatAmount(finalTotal)} KWD`}
+//                 isTotal
+//                 isLoading={isLoadingShippingFee}
+//               />
+//             </View>
+//           </View>
+
+//           <View style={styles.securityCard}>
+//             <View style={styles.securityHeader}>
+//               <Lock size={20} color="#10B981" />
+//               <Text style={styles.securityTitle}>Secure Payment</Text>
+//             </View>
+//             <Text style={styles.securityText}>
+//               • SSL encrypted payment processing • Verified by Bookeey Payment
+//               Gateway • Your payment details are protected
+//             </Text>
+//           </View>
+
+//           <TouchableOpacity
+//             style={[
+//               styles.payButton,
+//               (isProcessing || isLoadingShippingFee) &&
+//                 styles.payButtonDisabled,
+//             ]}
+//             onPress={handlePayment}
+//             disabled={isProcessing || isLoadingShippingFee}
+//           >
+//             {isProcessing ? (
+//               <ActivityIndicator color="white" size="small" />
+//             ) : (
+//               <View style={styles.payButtonContent}>
+//                 <CreditCard size={20} color="white" />
+//                 <Text style={styles.payButtonText}>
+//                   Pay {formatAmount(finalTotal)} KWD
+//                 </Text>
+//               </View>
+//             )}
+//           </TouchableOpacity>
+//           {paymentError && <Text style={styles.errorText}>{paymentError}</Text>}
+//         </ScrollView>
+
+//         <Modal
+//           visible={showWebView}
+//           animationType="slide"
+//           onRequestClose={handleBackPress}
+//         >
+//           <SafeAreaView style={styles.modalContainer}>
+//             <View style={styles.webViewHeader}>
+//               <TouchableOpacity
+//                 onPress={handleBackPress}
+//                 style={styles.webViewCloseButton}
+//                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+//               >
+//                 <ArrowLeft color="#E53935" size={24} />
+//               </TouchableOpacity>
+//               <View style={styles.webViewTitleContainer}>
+//                 <Lock size={16} color="#10B981" />
+//                 <Text style={styles.webViewTitle}>Secure Payment</Text>
+//               </View>
+//             </View>
+//             {isWebViewLoading && <PaymentLoadingOverlay />}
+//             {paymentUrl && (
+//               <WebView
+//                 source={{ uri: paymentUrl }}
+//                 onNavigationStateChange={(navState) => {
+//                   if (navState.url.includes(SURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const txnId = params.get("txnId");
+//                     handlePaymentSuccess(txnId!);
+//                   } else if (navState.url.includes(FURL) && !navState.loading) {
+//                     const params = new URLSearchParams(
+//                       navState.url.split("?")[1]
+//                     );
+//                     const errorMessage = params.get("errorMessage");
+//                     const txnId = params.get("txnId");
+//                     handlePaymentFailure(errorMessage, txnId);
+//                   }
+//                 }}
+//                 onLoadStart={() => setIsWebViewLoading(true)}
+//                 onLoadEnd={() => setIsWebViewLoading(false)}
+//                 onError={(syntheticEvent) =>
+//                   handlePaymentError(syntheticEvent.nativeEvent.description)
+//                 }
+//                 onHttpError={() => handlePaymentError("Connection error")}
+//                 style={styles.webView}
+//                 incognito={true}
+//                 cacheEnabled={false}
+//                 domStorageEnabled={true}
+//                 javaScriptEnabled={true}
+//                 startInLoadingState={true}
+//               />
+//             )}
+//           </SafeAreaView>
+//         </Modal>
+
+//         <PaymentSuccessModal
+//           visible={showSuccessModal}
+//           onClose={() => {
+//             setShowSuccessModal(false);
+//             router.push("/(root)/Cart");
+//           }}
+//           transactionId={transactionId}
+//         />
+//         <PaymentFailureModal
+//           visible={showFailureModal}
+//           onClose={() => setShowFailureModal(false)}
+//           errorMessage={paymentError}
+//           transactionId={transactionId}
+//         />
+//       </KeyboardAvoidingView>
+//       <Toast />
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   safeArea: { flex: 1, backgroundColor: "#f9fafb" },
+//   container: { flex: 1 },
+//   contentContainer: { padding: 16, paddingBottom: 100 },
+//   header: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     paddingVertical: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f0f0f0",
+//     backgroundColor: "#f9fafb",
+//   },
+//   backButton: { padding: 4 },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#1f2937",
+//     marginLeft: 16,
+//   },
+//   formContainer: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   section: { marginBottom: 24 },
+//   sectionTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#e5e7eb",
+//     paddingBottom: 4,
+//   },
+//   formTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#1f2937",
+//     marginBottom: 12,
+//   },
+//   formField: { marginBottom: 16 },
+//   inputLabelContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 6,
+//     marginBottom: 4,
+//   },
+//   inputLabel: { fontSize: 14, fontFamily: "Cairo-SemiBold", color: "#4b5563" },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: "#e5e7eb",
+//     borderRadius: 8,
+//     padding: 12,
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#1f2937",
+//     backgroundColor: "#fafafa",
+//   },
+//   inputError: { borderColor: "#ef4444" },
+//   errorText: {
+//     color: "#ef4444",
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     marginTop: 4,
+//   },
+//   helperText: {
+//     fontSize: 12,
+//     fontFamily: "Cairo",
+//     color: "#6b7280",
+//     marginTop: 4,
+//   },
+//   deliveryNote: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#10B981",
+//     marginBottom: 16,
+//     textAlign: "center",
+//     backgroundColor: "#f0fdf4",
+//     padding: 8,
+//     borderRadius: 8,
+//   },
+//   card: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.08,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   cardTitleContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 16,
+//   },
+//   cardTitle: { fontSize: 18, fontFamily: "Cairo-SemiBold", color: "#1f2937" },
+//   itemCount: { fontSize: 14, fontFamily: "Cairo", color: "#6b7280" },
+//   itemRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     paddingBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#f1f5f9",
+//   },
+//   itemDetails: { flex: 1, paddingRight: 8 },
+//   itemName: {
+//     fontSize: 15,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//     marginBottom: 4,
+//   },
+//   itemQuantity: { fontSize: 13, fontFamily: "Cairo", color: "#6b7280" },
+//   itemPrice: { fontSize: 15, fontFamily: "Cairo-Bold", color: "#374151" },
+//   summaryContainer: {
+//     marginTop: 16,
+//     paddingTop: 16,
+//     borderTopWidth: 1,
+//     borderTopColor: "#e5e7eb",
+//   },
+//   divider: { height: 1, backgroundColor: "#e5e7eb", marginVertical: 12 },
+//   securityCard: {
+//     backgroundColor: "#f0fdf4",
+//     borderRadius: 16,
+//     padding: 16,
+//     marginBottom: 24,
+//     borderWidth: 1,
+//     borderColor: "#86efac",
+//   },
+//   securityHeader: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     marginBottom: 12,
+//     gap: 8,
+//   },
+//   securityTitle: {
+//     fontSize: 16,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#047857",
+//   },
+//   securityText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#4B5563",
+//     lineHeight: 22,
+//   },
+//   payButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 12,
+//     padding: 18,
+//     alignItems: "center",
+//     justifyContent: "center",
+//     marginBottom: 12,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//   },
+//   payButtonDisabled: { opacity: 0.6 },
+//   payButtonContent: { flexDirection: "row", alignItems: "center", gap: 10 },
+//   payButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   modalBackground: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   modalContainer: { flex: 1, backgroundColor: "#fff" },
+//   modalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   successModalContent: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     width: "90%",
+//     maxWidth: 350,
+//   },
+//   lottieAnimation: { width: 200, height: 200 },
+//   failureModal: { borderColor: "#E53935", borderWidth: 2 },
+//   modalTitle: {
+//     fontSize: 20,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   modalText: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   modalButton: {
+//     backgroundColor: "#E53935",
+//     borderRadius: 8,
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     marginTop: 24,
+//   },
+//   modalButtonText: { color: "white", fontSize: 16, fontFamily: "Cairo-Bold" },
+//   webView: { flex: 1 },
+//   webViewHeader: {
+//     height: 56,
+//     flexDirection: "row",
+//     alignItems: "center",
+//     paddingHorizontal: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#E5E7EB",
+//     backgroundColor: "#f9fafb",
+//   },
+//   webViewCloseButton: { padding: 8 },
+//   webViewTitleContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 8,
+//     flex: 1,
+//     justifyContent: "center",
+//     marginRight: 40,
+//   },
+//   webViewTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+//   loadingOverlay: {
+//     position: "absolute",
+//     top: 0,
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
+//     backgroundColor: "rgba(255,255,255,0.95)",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     zIndex: 1000,
+//   },
+//   loadingCard: {
+//     backgroundColor: "white",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//     width: "80%",
+//     maxWidth: 300,
+//   },
+//   loadingTitle: {
+//     fontSize: 18,
+//     fontFamily: "Cairo-Bold",
+//     color: "#374151",
+//     marginTop: 16,
+//   },
+//   loadingSubtext: {
+//     fontSize: 14,
+//     fontFamily: "Cairo",
+//     color: "#6B7280",
+//     textAlign: "center",
+//     marginTop: 8,
+//   },
+//   errorValue: { fontSize: 14, fontFamily: "Cairo", color: "#DC2626" },
+//   shippingFeeRow: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     marginVertical: 4,
+//   },
+//   shippingFeeValueContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "flex-end",
+//   },
+//   summaryLabel: { fontSize: 14, fontFamily: "Cairo", color: "#4b5563" },
+//   summaryValue: {
+//     fontSize: 14,
+//     fontFamily: "Cairo-SemiBold",
+//     color: "#374151",
+//   },
+// });
+
+/********************************/
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -35764,11 +38957,11 @@ import {
   Platform,
   TouchableOpacity,
   SafeAreaView,
-  BackHandler,
   Modal,
   StatusBar,
   TextInput,
   KeyboardAvoidingView,
+  BackHandler,
 } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { WebView } from "react-native-webview";
@@ -35788,22 +38981,45 @@ import {
 import Toast from "react-native-toast-message";
 import NetInfo from "@react-native-community/netinfo";
 import * as SecureStore from "expo-secure-store";
-import CryptoJS from "crypto-js";
 import useCartStore from "../../store/cartStore";
 import { OrderSummaryRow } from "../Components/OrderSummary";
 import useShippingFee from "../hooks/useShippingFee";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LottieView from "lottie-react-native";
 import { useUserContext } from "../contexts/UserContext";
+import publicIP from "react-native-public-ip";
+import axios from "axios";
 
+const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === "production";
+const STRAPI_API_URL = IS_PRODUCTION
+  ? process.env.EXPO_PUBLIC_STRAPI_API_URL_PROD
+  : process.env.EXPO_PUBLIC_STRAPI_API_URL_DEV;
+const SURL = IS_PRODUCTION
+  ? process.env.EXPO_PUBLIC_SUCCESS_URL_PROD
+  : process.env.EXPO_PUBLIC_SUCCESS_URL_DEV;
+const FURL = IS_PRODUCTION
+  ? process.env.EXPO_PUBLIC_FAILURE_URL_PROD
+  : process.env.EXPO_PUBLIC_FAILURE_URL_DEV;
 const FORM_DATA_KEY =
   process.env.EXPO_PUBLIC_FORM_DATA_KEY || "user_checkout_info";
 const REQUEST_TIMEOUT =
   Number(process.env.EXPO_PUBLIC_REQUEST_TIMEOUT) || 30000;
-const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "myapp";
 
-const PaymentSuccessModal = ({ visible, onClose }) => {
-  const animationRef = useRef(null);
+const api = axios.create({
+  baseURL: STRAPI_API_URL,
+  auth: {
+    username: process.env.EXPO_PUBLIC_STRAPI_API_USERNAME,
+    password: process.env.EXPO_PUBLIC_STRAPI_API_PASSWORD,
+  },
+  timeout: REQUEST_TIMEOUT,
+});
+
+const PaymentSuccessModal: React.FC<{
+  visible: boolean;
+  onClose: () => void;
+  transactionId: string | null;
+}> = ({ visible, onClose }) => {
+  const animationRef = useRef<LottieView>(null);
 
   useEffect(() => {
     if (visible && animationRef.current) animationRef.current.play();
@@ -35825,17 +39041,41 @@ const PaymentSuccessModal = ({ visible, onClose }) => {
             loop={false}
             onAnimationFinish={onClose}
           />
-          <Text style={styles.modalTitle}>Payment Successful!</Text>
-          <Text style={styles.modalText}>
-            Thank you for your purchase. Redirecting to cart...
-          </Text>
         </View>
       </View>
     </Modal>
   );
 };
 
-const PaymentLoadingOverlay = () => (
+const PaymentFailureModal: React.FC<{
+  visible: boolean;
+  onClose: () => void;
+  errorMessage: string | null;
+  transactionId: string | null;
+}> = ({ visible, onClose, errorMessage, transactionId }) => (
+  <Modal
+    visible={visible}
+    transparent={true}
+    animationType="fade"
+    onRequestClose={onClose}
+  >
+    <View style={styles.modalBackground}>
+      <View style={[styles.modalContent, styles.failureModal]}>
+        <XCircle size={48} color="#E53935" />
+        <Text style={styles.modalTitle}>Payment Failed</Text>
+        <Text style={styles.modalText}>
+          {errorMessage || "An error occurred during payment."}
+          {transactionId && `\nTransaction ID: ${transactionId}`}
+        </Text>
+        <TouchableOpacity style={styles.modalButton} onPress={onClose}>
+          <Text style={styles.modalButtonText}>Try Again</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+);
+
+const PaymentLoadingOverlay: React.FC = () => (
   <View style={styles.loadingOverlay}>
     <View style={styles.loadingCard}>
       <ActivityIndicator size="large" color="#10B981" />
@@ -35857,19 +39097,13 @@ const REQUIRED_FIELDS = [
 const PHONE_REGEX = /^\d{8,}$/;
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
 
-const saveFormData = async (data) => {
-  try {
-    await SecureStore.setItemAsync(FORM_DATA_KEY, JSON.stringify(data));
-  } catch (error) {}
+const saveFormData = async (data: any) => {
+  await SecureStore.setItemAsync(FORM_DATA_KEY, JSON.stringify(data));
 };
 
 const loadFormData = async () => {
-  try {
-    const savedData = await SecureStore.getItemAsync(FORM_DATA_KEY);
-    return savedData ? JSON.parse(savedData) : null;
-  } catch (error) {
-    return null;
-  }
+  const savedData = await SecureStore.getItemAsync(FORM_DATA_KEY);
+  return savedData ? JSON.parse(savedData) : null;
 };
 
 export default function CheckoutPage() {
@@ -35893,15 +39127,17 @@ export default function CheckoutPage() {
     city: "",
     address: "",
   });
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentError, setPaymentError] = useState(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailureModal, setShowFailureModal] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
   const [isOrderCreated, setIsOrderCreated] = useState(false);
+  const [ipAddress, setIpAddress] = useState("");
 
   useEffect(() => {
     const loadSavedData = async () => {
@@ -35924,12 +39160,20 @@ export default function CheckoutPage() {
     if (items.length === 0) router.replace("/(root)/Cart");
   }, [items.length]);
 
+  useEffect(() => {
+    const fetchIp = async () => {
+      const ip = await publicIP();
+      setIpAddress(ip || "192.168.8.125");
+    };
+    fetchIp();
+  }, []);
+
   const validateForm = () => {
-    const errors = {};
+    const errors: Record<string, string> = {};
     let isValid = true;
 
     REQUIRED_FIELDS.forEach((field) => {
-      if (!formData[field].trim()) {
+      if (!formData[field as keyof typeof formData].trim()) {
         errors[field] = `${
           field.charAt(0).toUpperCase() + field.slice(1)
         } is required`;
@@ -36001,105 +39245,100 @@ export default function CheckoutPage() {
     }, [showWebView])
   );
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (txnId: string) => {
     if (isOrderCreated) return;
     setIsOrderCreated(true);
+    setTransactionId(txnId);
+
+    const orderId = `TX${new Date()
+      .toISOString()
+      .replace(/[^0-9]/g, "")
+      .slice(0, 14)}${Math.random().toString(36).slice(2, 6)}`;
+    const subtotal = total;
+    const discountAmount = appliedCoupon
+      ? appliedCoupon.type === "percentage"
+        ? (total * appliedCoupon.amount) / 100
+        : appliedCoupon.amount
+      : 0;
+    const orderTotal = (discountedTotal || total) + shippingFee;
+
+    const orderData = {
+      data: {
+        orderId,
+        OrderStatus: "Pending",
+        subtotal: Number(subtotal.toFixed(2)),
+        discountAmount: Number(discountAmount.toFixed(2)),
+        shippingFee: Number(shippingFee.toFixed(2)),
+        OrderTotal: Number(orderTotal.toFixed(2)),
+        OrderDetails: JSON.stringify(items),
+        shippingInfo: JSON.stringify({
+          state: formData.state,
+          city: formData.city,
+          address: formData.address,
+          phone: formData.phone,
+        }),
+        paymentStatus: "success",
+        paymentId: orderId,
+        isGuestOrder: userData?.isGuestMode || !userData,
+        guestInfo:
+          userData?.isGuestMode || !userData
+            ? JSON.stringify({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+              })
+            : null,
+        auth: userData && !userData.isGuestMode ? userData.strapiId : null,
+      },
+    };
 
     try {
-      const orderId = `TX${new Date()
-        .toISOString()
-        .replace(/[^0-9]/g, "")
-        .slice(0, 14)}${Math.random().toString(36).slice(2, 6)}`;
-      const subtotal = total;
-      const discountAmount = appliedCoupon
-        ? appliedCoupon.type === "percentage"
-          ? (total * appliedCoupon.amount) / 100
-          : appliedCoupon.amount
-        : 0;
-      const orderTotal = (discountedTotal || total) + shippingFee;
-
-      const orderData = {
-        data: {
-          orderId,
-          OrderStatus: "Pending",
-          subtotal: Number(subtotal.toFixed(2)),
-          discountAmount: Number(discountAmount.toFixed(2)),
-          shippingFee: Number(shippingFee.toFixed(2)),
-          OrderTotal: Number(orderTotal.toFixed(2)),
-          OrderDetails: JSON.stringify(items),
-          shippingInfo: JSON.stringify({
-            state: formData.state,
-            city: formData.city,
-            address: formData.address,
-            phone: formData.phone,
-          }),
-          paymentStatus: "success",
-          paymentId: orderId,
-          isGuestOrder: userData?.isGuestMode || !userData,
-          guestInfo:
-            userData?.isGuestMode || !userData
-              ? JSON.stringify({
-                  firstName: formData.firstName,
-                  lastName: formData.lastName,
-                  email: formData.email,
-                  phone: formData.phone,
-                })
-              : null,
-          auth: userData && !userData.isGuestMode ? userData.strapiId : null,
-        },
-      };
-
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_STRAPI_API_URL}/api/orders`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.EXPO_PUBLIC_STRAPI_API_TOKEN_USER}`,
-          },
-          body: JSON.stringify(orderData),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create order in Strapi: ${errorText}`);
+      const response = await api.post("/api/orders", orderData);
+      if (response.status !== 200) {
+        throw new Error("Failed to create order");
       }
-
-      await saveFormData(formData);
-      clearCart();
-      setShowWebView(false);
-      setPaymentUrl(null);
+    } catch (error) {
+      console.error("Error creating order:", error);
       Toast.show({
-        type: "success",
-        text1: "Payment Successful",
-        text2: "Thank you for your purchase!",
+        type: "error",
+        text1: "Order Creation Failed",
+        text2: "Please contact support",
         position: "top",
       });
-      setShowSuccessModal(true);
-      setTimeout(() => {
-        setShowSuccessModal(false);
-        router.push("/(root)/Cart");
-      }, 3000);
-    } catch (error) {
-      setPaymentError("Failed to record order. Contact support.");
-      handlePaymentFailure("Failed to record order. Contact support.");
+      return;
     }
-  };
 
-  const handlePaymentFailure = (message) => {
+    await saveFormData(formData);
+    clearCart();
     setShowWebView(false);
     setPaymentUrl(null);
-    setPaymentError(message || "Payment failed. Please try again.");
+    Toast.show({
+      type: "success",
+      text1: "Payment Successful",
+      text2: "Thank you for your purchase!",
+      position: "top",
+    });
+    setShowSuccessModal(true);
+  };
+
+  const handlePaymentFailure = (
+    errorMessage: string | null,
+    txnId: string | null
+  ) => {
+    setShowWebView(false);
+    setPaymentUrl(null);
+    setTransactionId(txnId);
+    setPaymentError(errorMessage || "Payment failed. Please try again.");
     setShowFailureModal(true);
   };
 
-  const handlePaymentError = (errorMessage) => {
+  const handlePaymentError = (errorMessage: string) => {
     setPaymentError(errorMessage);
     setShowFailureModal(true);
   };
 
-  const formatAmount = (amount) => Number(amount.toFixed(2)).toString();
+  const formatAmount = (amount: number) => Number(amount.toFixed(2)).toString();
 
   const subtotal = total;
   const discount = appliedCoupon
@@ -36120,122 +39359,76 @@ export default function CheckoutPage() {
       setIsProcessing(true);
       setPaymentError(null);
 
-      const PAYMENT_API_URL = process.env.EXPO_PUBLIC_PAYMENT_API_URL_SANDBOX;
-      const MERCH_UID = process.env.EXPO_PUBLIC_BOOKEEY_MERCHANT_ID_TEST;
-      const SECRET_KEY = process.env.EXPO_PUBLIC_BOOKEEY_SECRET_KEY_TEST;
-      const SUB_MERCH_UID = process.env.EXPO_PUBLIC_BOOKEEY_SUBMERCHANT_ID_TEST;
-      const SURL = process.env.EXPO_PUBLIC_SUCCESS_URL_TEST;
-      const FURL = process.env.EXPO_PUBLIC_FAILURE_URL_TEST;
-
-      if (
-        !PAYMENT_API_URL ||
-        !MERCH_UID ||
-        !SECRET_KEY ||
-        !SUB_MERCH_UID ||
-        !SURL ||
-        !FURL
-      ) {
-        throw new Error("Missing required Bookeey configuration");
-      }
-
-      const currentDate = new Date()
-        .toISOString()
-        .replace(/[^0-9]/g, "")
-        .slice(0, 14);
-      const randomSuffix = Math.random().toString(36).slice(2, 6);
-      const orderId = `TX${currentDate}${randomSuffix}`;
-      const fullName = `${formData.firstName} ${formData.lastName}`;
-      const cleanPhone = formData.phone.replace(/[^\d]/g, "");
-      const txnHDR = `${Date.now()}${Math.floor(Math.random() * 10000)}`;
-      const formattedAmount = formatAmount(finalTotal);
-
-      const sequence = `${MERCH_UID}|${orderId}|${SURL}|${FURL}|${formattedAmount}|GEN|${SECRET_KEY}|${txnHDR}`;
-      const hashMac = CryptoJS.SHA512(sequence).toString(CryptoJS.enc.Hex);
-
-      const payload = {
-        DBRqst: "PY_ECom",
-        Do_Appinfo: {
-          APPTyp: "MOB",
-          OS: Platform.OS === "ios" ? "iOS" : "Android",
-          DevcType: "",
-          APPID: "PG",
-          IPAddrs: "",
-          HsCode: "",
-          Country: "KW",
-          AppVer: "1.0",
-          UsrSessID: "",
-          MdlID: "Pay_Req",
-          APIVer: "2.1",
-        },
-        Do_PyrDtl: {
-          Pyr_MPhone: cleanPhone,
-          Pyr_Name: fullName,
-          ISDNCD: "965",
-        },
-        Do_MerchDtl: {
-          BKY_PRDENUM: "ECom",
-          MerchUID: MERCH_UID,
-          SURL: SURL,
-          FURL: FURL,
-        },
-        Do_TxnHdr: {
-          BKY_Txn_UID: "",
-          Merch_Txn_UID: orderId,
-          PayFor: "ECom",
-          PayMethod: "knet",
-          Txn_HDR: txnHDR,
-          hashMac: hashMac,
-        },
-        Do_TxnDtl: [{ SubMerchUID: SUB_MERCH_UID, Txn_AMT: formattedAmount }],
+      const customerInfo = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone,
+        platform: Platform.OS,
       };
 
-      const headers = {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      };
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-      const response = await fetch(PAYMENT_API_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-        signal: controller.signal,
+      const response = await api.post("/api/payments/initiate", {
+        amount: finalTotal,
+        customerInfo,
+        ipAddress,
       });
-      clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Payment service error: ${response.status} - ${errorText}`
-        );
-      }
+      const data = response.data;
+      const paymentUrl = data.paymentUrl;
 
-      const data = await response.json();
-      if (data.ErrorMessage && data.ErrorMessage !== "Success") {
-        throw new Error(`API Error: ${data.ErrorMessage}`);
-      }
-
-      const paymentUrl = data?.PayUrl;
-      if (!paymentUrl || !paymentUrl.startsWith("https://")) {
+      if (!paymentUrl || !paymentUrl.startsWith("https://"))
         throw new Error("Invalid or insecure payment URL received");
-      }
 
       setPaymentUrl(paymentUrl);
       setShowWebView(true);
-    } catch (error) {
+
+      setTimeout(() => {
+        if (showWebView) checkPaymentStatus(data.merchantTxnId);
+      }, 60000);
+    } catch (error: any) {
       let errorMessage = "Payment initiation failed";
-      if (error.name === "AbortError") {
-        errorMessage = "Request timed out. Please try again.";
+      if (axios.isAxiosError(error)) {
+        errorMessage = error.response?.data?.message || error.message;
       } else if (error.message) {
         errorMessage = error.message;
       }
+      console.error("Payment Error:", error);
       setPaymentError(errorMessage);
       handlePaymentError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const checkPaymentStatus = async (merchantTxnId: string) => {
+    try {
+      const response = await api.get(`/api/payments/verify/${merchantTxnId}`);
+      const data = response.data;
+      if (data.finalStatus === "success") {
+        handlePaymentSuccess(data.txnId);
+      } else if (
+        data.finalStatus === "failed" ||
+        data.finalStatus === "cancelled"
+      ) {
+        handlePaymentFailure(data.errorMessage || "Payment failed", data.txnId);
+      }
+    } catch (error) {
+      console.error("Error checking payment status:", error);
+    }
+  };
+
+  if (
+    !process.env.EXPO_PUBLIC_STRAPI_API_URL_PROD ||
+    !process.env.EXPO_PUBLIC_STRAPI_API_URL_DEV ||
+    !process.env.EXPO_PUBLIC_STRAPI_API_USERNAME ||
+    !process.env.EXPO_PUBLIC_STRAPI_API_PASSWORD
+  ) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Critical environment variables are missing. Please contact support.
+        </Text>
+      </View>
+    );
+  }
 
   if (items.length === 0) return null;
 
@@ -36286,7 +39479,7 @@ export default function CheckoutPage() {
                       styles.input,
                       formErrors[field] && styles.inputError,
                     ]}
-                    value={formData[field]}
+                    value={formData[field as keyof typeof formData]}
                     onChangeText={(text) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -36338,7 +39531,7 @@ export default function CheckoutPage() {
                       styles.input,
                       formErrors[field] && styles.inputError,
                     ]}
-                    value={formData[field]}
+                    value={formData[field as keyof typeof formData]}
                     onChangeText={(text) =>
                       setFormData((prev) => ({ ...prev, [field]: text }))
                     }
@@ -36373,6 +39566,7 @@ export default function CheckoutPage() {
                 </Text>
               </View>
             ))}
+
             <View style={styles.summaryContainer}>
               <OrderSummaryRow
                 label="Subtotal"
@@ -36467,19 +39661,19 @@ export default function CheckoutPage() {
               <WebView
                 source={{ uri: paymentUrl }}
                 onNavigationStateChange={(navState) => {
-                  const { url } = navState;
-                  if (
-                    url.includes(process.env.EXPO_PUBLIC_SUCCESS_URL_TEST) &&
-                    !navState.loading
-                  ) {
-                    handlePaymentSuccess();
-                    setShowWebView(false);
-                  } else if (
-                    url.includes(process.env.EXPO_PUBLIC_FAILURE_URL_TEST) &&
-                    !navState.loading
-                  ) {
-                    handlePaymentFailure("Payment failed on gateway");
-                    setShowWebView(false);
+                  if (navState.url.includes(SURL) && !navState.loading) {
+                    const params = new URLSearchParams(
+                      navState.url.split("?")[1]
+                    );
+                    const txnId = params.get("txnId");
+                    handlePaymentSuccess(txnId!);
+                  } else if (navState.url.includes(FURL) && !navState.loading) {
+                    const params = new URLSearchParams(
+                      navState.url.split("?")[1]
+                    );
+                    const errorMessage = params.get("errorMessage");
+                    const txnId = params.get("txnId");
+                    handlePaymentFailure(errorMessage, txnId);
                   }
                 }}
                 onLoadStart={() => setIsWebViewLoading(true)}
@@ -36505,31 +39699,14 @@ export default function CheckoutPage() {
             setShowSuccessModal(false);
             router.push("/(root)/Cart");
           }}
+          transactionId={transactionId}
         />
-
-        <Modal
+        <PaymentFailureModal
           visible={showFailureModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowFailureModal(false)}
-        >
-          <View style={styles.modalBackground}>
-            <View style={[styles.modalContent, styles.failureModal]}>
-              <XCircle size={48} color="#E53935" />
-              <Text style={styles.modalTitle}>Payment Failed</Text>
-              <Text style={styles.modalText}>
-                {paymentError ||
-                  "Please try again or use a different payment method."}
-              </Text>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => setShowFailureModal(false)}
-              >
-                <Text style={styles.modalButtonText}>Try Again</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+          onClose={() => setShowFailureModal(false)}
+          errorMessage={paymentError}
+          transactionId={transactionId}
+        />
       </KeyboardAvoidingView>
       <Toast />
     </SafeAreaView>
@@ -36834,4 +40011,16 @@ const styles = StyleSheet.create({
     fontFamily: "Cairo-SemiBold",
     color: "#374151",
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  //   errorText: {
+  //     fontSize: 16,
+  //     fontFamily: "Cairo",
+  //     color: "#DC2626",
+  //     textAlign: "center",
+  //   },
 });
