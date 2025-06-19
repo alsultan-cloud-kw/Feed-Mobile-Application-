@@ -5281,6 +5281,336 @@
 
 /******************************** */
 
+// import React, { useState, useMemo, useCallback, useEffect } from "react";
+// import {
+//   View,
+//   Text,
+//   Image,
+//   Pressable,
+//   ActivityIndicator,
+//   useWindowDimensions,
+// } from "react-native";
+// import { FlashList } from "@shopify/flash-list";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import { MotiView } from "moti";
+// import { useRouter, useLocalSearchParams } from "expo-router";
+// import { Plus, Minus, Trash2 } from "lucide-react-native";
+// import { useInfiniteQuery } from "@tanstack/react-query";
+// import useCartStore from "../../../../store/cartStore";
+// import {
+//   Product,
+//   FilterState,
+//   fetchProducts,
+// } from "../../../servicies/NewProductsApi";
+// import EnhancedFilterComponent from "../../../Utils/EnhancedFilterComponent";
+// import Toast from "react-native-toast-message";
+
+// const showToast = (type, message) => {
+//   Toast.show({
+//     type,
+//     text1: message,
+//     position: "top",
+//     visibilityTime: 2000,
+//     topOffset: 60,
+//   });
+// };
+
+// const CartInteraction = React.memo(({ product }) => {
+//   const { items, updateQuantity, removeFromCart, addToCart } = useCartStore();
+//   const cartItem = items.find((item) => item.documentId === product.documentId);
+
+//   const handleAdd = useCallback(() => {
+//     const imageUrl = product.primaryImage?.[0]?.formats?.large?.url || "";
+//     addToCart({ ...product, quantity: 1, imageUrl });
+//     showToast("success", `${product.name} added to cart`);
+//   }, [product, addToCart]);
+
+//   const handleRemove = useCallback(() => {
+//     removeFromCart(product.documentId);
+//     showToast("info", `${product.name} removed from cart`);
+//   }, [product, removeFromCart]);
+
+//   const handleUpdate = useCallback(
+//     (newQuantity) => {
+//       if (newQuantity < 1) {
+//         handleRemove();
+//         return;
+//       }
+//       updateQuantity(product.documentId, newQuantity);
+//       showToast("success", "Cart updated");
+//     },
+//     [product.documentId, updateQuantity, handleRemove]
+//   );
+
+//   if (!cartItem) {
+//     return (
+//       <Pressable
+//         onPress={handleAdd}
+//         className="bg-green-500 p-1.5 rounded-full"
+//         hitSlop={8}
+//       >
+//         <Plus size={14} color="white" />
+//       </Pressable>
+//     );
+//   }
+
+//   return (
+//     <View className="flex-row items-center bg-gray-100 rounded-full">
+//       <Pressable
+//         onPress={() => handleUpdate(cartItem.quantity - 1)}
+//         className="p-1"
+//         hitSlop={8}
+//       >
+//         {cartItem.quantity === 1 ? (
+//           <Trash2 size={14} color="#EF4444" />
+//         ) : (
+//           <Minus size={14} color="#EF4444" />
+//         )}
+//       </Pressable>
+//       <Text className="px-2 font-semibold min-w-[20px] text-center text-xs">
+//         {cartItem.quantity}
+//       </Text>
+//       <Pressable
+//         onPress={() => handleUpdate(cartItem.quantity + 1)}
+//         className="p-1"
+//         hitSlop={8}
+//       >
+//         <Plus size={14} color="#EF4444" />
+//       </Pressable>
+//     </View>
+//   );
+// });
+
+// const ProductCard = React.memo(({ item, index }) => {
+//   const { width } = useWindowDimensions();
+//   const ITEM_WIDTH = (width - 48) / 3;
+//   const router = useRouter();
+//   const [imageError, setImageError] = useState(false);
+
+//   const handleProductPress = useCallback(() => {
+//     router.push({
+//       pathname: "/(root)/(tabs)/(store)/store/[documentId]",
+//       params: { documentId: item.documentId, category: item.Category },
+//     });
+//   }, [item.documentId, item.Category, router]);
+
+//   const imageUrl =
+//     item.primaryImage?.[0]?.formats?.large?.url ||
+//     item.primaryImage?.[0]?.formats?.medium?.url ||
+//     item.primaryImage?.[0]?.formats?.small?.url;
+
+//   return (
+//     <MotiView
+//       from={{ opacity: 0, translateY: 20 }}
+//       animate={{ opacity: 1, translateY: 0 }}
+//       transition={{ delay: index * 50, type: "timing", duration: 300 }}
+//       style={{ width: ITEM_WIDTH }}
+//       className="mb-3 mx-1"
+//     >
+//       <Pressable
+//         onPress={handleProductPress}
+//         className="bg-white rounded-xl shadow-sm overflow-hidden"
+//       >
+//         {/* <View className="w-full aspect-square rounded-t-xl overflow-hidden relative">
+//           <Image
+//             source={
+//               imageUrl && !imageError
+//                 ? { uri: imageUrl }
+//                 : require("../../../../assets/product-placeholder.png")
+//             }
+//             className="w-full h-full"
+//             resizeMode="cover"
+//             onError={() => setImageError(true)}
+//           />
+//           <View className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/70">
+//             <Text className="text-white font-medium text-[10px]">
+//               {item.price?.toFixed(3)} KWD
+//             </Text>
+//           </View>
+//         </View> */}
+
+//         <View className="w-full aspect-square rounded-t-xl overflow-hidden relative">
+//           {/* Always show the placeholder */}
+//           <Image
+//             source={require("../../../../assets/product-placeholder.png")}
+//             className="w-full h-full absolute"
+//             resizeMode="cover"
+//           />
+//           {/* Render the remote image only if available and error-free */}
+//           {imageUrl && !imageError && (
+//             <Image
+//               source={{ uri: imageUrl }}
+//               className="w-full h-full"
+//               resizeMode="cover"
+//               onError={() => setImageError(true)}
+//             />
+//           )}
+//           <View className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/70">
+//             <Text className="text-white font-medium text-[10px]">
+//               {item.price?.toFixed(3)} KWD
+//             </Text>
+//           </View>
+//         </View>
+
+//         <View className="p-2">
+//           <Text
+//             numberOfLines={1}
+//             className="text-xs font-semibold text-gray-900 mb-0.5"
+//           >
+//             {item.name}
+//           </Text>
+//           <Text numberOfLines={1} className="text-[10px] text-gray-500 mb-1">
+//             {item.Category}
+//           </Text>
+//           <CartInteraction product={item} />
+//         </View>
+//       </Pressable>
+//     </MotiView>
+//   );
+// });
+
+// const ProductSkeleton = React.memo(({ index }) => {
+//   const { width } = useWindowDimensions();
+//   const ITEM_WIDTH = (width - 48) / 3;
+
+//   return (
+//     <MotiView
+//       from={{ opacity: 0.5 }}
+//       animate={{ opacity: 1 }}
+//       transition={{ type: "timing", duration: 1000, loop: true }}
+//       style={{ width: ITEM_WIDTH }}
+//       className="mb-3 mx-1"
+//     >
+//       <View className="bg-white rounded-xl overflow-hidden">
+//         <View className="w-full aspect-square bg-gray-100 rounded-t-xl" />
+//         <View className="p-2">
+//           <View className="h-2 bg-gray-100 rounded-full w-3/4 mb-1" />
+//           <View className="h-2 bg-gray-100 rounded-full w-1/2 mb-1" />
+//           <View className="h-4 bg-gray-100 rounded-full w-8 mt-1" />
+//         </View>
+//       </View>
+//     </MotiView>
+//   );
+// });
+
+// const ProductsScreen = () => {
+//   const insets = useSafeAreaInsets();
+//   const params = useLocalSearchParams();
+//   const router = useRouter();
+
+//   const [selectedFilters, setSelectedFilters] = useState({
+//     category: params.category ? String(params.category) : null,
+//     subcategories: [],
+//   });
+//   const [isApplyingFilters, setIsApplyingFilters] = useState(false);
+
+//   const {
+//     data,
+//     fetchNextPage,
+//     hasNextPage,
+//     isLoading,
+//     isError,
+//     error,
+//     refetch,
+//     isFetchingNextPage,
+//   } = useInfiniteQuery({
+//     queryKey: ["products", selectedFilters],
+//     queryFn: ({ pageParam = 1 }) => fetchProducts(selectedFilters, pageParam),
+//     getNextPageParam: (lastPage) => lastPage.nextPage,
+//     staleTime: 1000 * 60 * 5,
+//   });
+
+//   useEffect(() => {
+//     const initialCategory = params.category ? String(params.category) : null;
+//     if (
+//       initialCategory &&
+//       initialCategory !== selectedFilters.category &&
+//       !isApplyingFilters
+//     ) {
+//       setSelectedFilters({
+//         category: initialCategory,
+//         subcategories: [],
+//       });
+//     }
+//   }, [params.category]);
+
+//   const handleFiltersApply = useCallback(
+//     (newFilters) => {
+//       setIsApplyingFilters(true);
+//       setSelectedFilters(newFilters);
+
+//       if (newFilters.category === null) {
+//         router.setParams({ category: undefined });
+//       } else {
+//         router.setParams({ category: newFilters.category });
+//       }
+
+//       refetch();
+//       setIsApplyingFilters(false);
+//     },
+//     [router, refetch]
+//   );
+
+//   const products = useMemo(() => {
+//     return data?.pages.flatMap((page) => page.data) || [];
+//   }, [data]);
+
+//   return (
+//     <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
+//       <EnhancedFilterComponent
+//         selectedFilters={selectedFilters}
+//         setSelectedFilters={setSelectedFilters}
+//         onFiltersApply={handleFiltersApply}
+//         isLoading={isLoading || isFetchingNextPage}
+//       />
+//       <FlashList
+//         data={isLoading ? Array(9).fill({}) : products}
+//         renderItem={({ item, index }) =>
+//           isLoading ? (
+//             <ProductSkeleton index={index} />
+//           ) : (
+//             <ProductCard item={item} index={index} />
+//           )
+//         }
+//         estimatedItemSize={200}
+//         numColumns={3}
+//         contentContainerStyle={{ padding: 16 }}
+//         onEndReached={() =>
+//           hasNextPage && !isFetchingNextPage && fetchNextPage()
+//         }
+//         onEndReachedThreshold={0.5}
+//         onRefresh={refetch}
+//         refreshing={isLoading}
+//         ListEmptyComponent={
+//           !isLoading && (
+//             <View className="p-5 items-center">
+//               <Text className="text-gray-500 text-sm">No products found</Text>
+//             </View>
+//           )
+//         }
+//         ListFooterComponent={
+//           isFetchingNextPage ? (
+//             <View className="py-4">
+//               <ActivityIndicator size="small" color="#50C878" />
+//             </View>
+//           ) : null
+//         }
+//       />
+//       {isError && (
+//         <View className="absolute bottom-0 left-0 right-0 p-4 bg-red-500">
+//           <Text className="text-white text-center text-sm">
+//             {error instanceof Error ? error.message : "Failed to load products"}
+//           </Text>
+//         </View>
+//       )}
+//     </View>
+//   );
+// };
+
+// export default ProductsScreen;
+
+/**************************************/
+
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   View,
@@ -5304,6 +5634,8 @@ import {
 } from "../../../servicies/NewProductsApi";
 import EnhancedFilterComponent from "../../../Utils/EnhancedFilterComponent";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 const showToast = (type, message) => {
   Toast.show({
@@ -5318,17 +5650,24 @@ const showToast = (type, message) => {
 const CartInteraction = React.memo(({ product }) => {
   const { items, updateQuantity, removeFromCart, addToCart } = useCartStore();
   const cartItem = items.find((item) => item.documentId === product.documentId);
+  const { t } = useTranslation();
 
   const handleAdd = useCallback(() => {
     const imageUrl = product.primaryImage?.[0]?.formats?.large?.url || "";
     addToCart({ ...product, quantity: 1, imageUrl });
-    showToast("success", `${product.name} added to cart`);
-  }, [product, addToCart]);
+    showToast(
+      "success",
+      t("screens.store.addedToCart", { name: product.name })
+    );
+  }, [product, addToCart, t]);
 
   const handleRemove = useCallback(() => {
     removeFromCart(product.documentId);
-    showToast("info", `${product.name} removed from cart`);
-  }, [product, removeFromCart]);
+    showToast(
+      "info",
+      t("screens.store.removedFromCart", { name: product.name })
+    );
+  }, [product, removeFromCart, t]);
 
   const handleUpdate = useCallback(
     (newQuantity) => {
@@ -5337,9 +5676,9 @@ const CartInteraction = React.memo(({ product }) => {
         return;
       }
       updateQuantity(product.documentId, newQuantity);
-      showToast("success", "Cart updated");
+      showToast("success", t("screens.store.cartUpdated"));
     },
-    [product.documentId, updateQuantity, handleRemove]
+    [product.documentId, updateQuantity, handleRemove, t]
   );
 
   if (!cartItem) {
@@ -5386,6 +5725,8 @@ const ProductCard = React.memo(({ item, index }) => {
   const ITEM_WIDTH = (width - 48) / 3;
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
+  const { currentLanguage } = useLanguage();
+  const isRTL = currentLanguage === "ar";
 
   const handleProductPress = useCallback(() => {
     router.push({
@@ -5411,32 +5752,12 @@ const ProductCard = React.memo(({ item, index }) => {
         onPress={handleProductPress}
         className="bg-white rounded-xl shadow-sm overflow-hidden"
       >
-        {/* <View className="w-full aspect-square rounded-t-xl overflow-hidden relative">
-          <Image
-            source={
-              imageUrl && !imageError
-                ? { uri: imageUrl }
-                : require("../../../../assets/product-placeholder.png")
-            }
-            className="w-full h-full"
-            resizeMode="cover"
-            onError={() => setImageError(true)}
-          />
-          <View className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-black/70">
-            <Text className="text-white font-medium text-[10px]">
-              {item.price?.toFixed(3)} KWD
-            </Text>
-          </View>
-        </View> */}
-
         <View className="w-full aspect-square rounded-t-xl overflow-hidden relative">
-          {/* Always show the placeholder */}
           <Image
             source={require("../../../../assets/product-placeholder.png")}
             className="w-full h-full absolute"
             resizeMode="cover"
           />
-          {/* Render the remote image only if available and error-free */}
           {imageUrl && !imageError && (
             <Image
               source={{ uri: imageUrl }}
@@ -5451,15 +5772,19 @@ const ProductCard = React.memo(({ item, index }) => {
             </Text>
           </View>
         </View>
-
         <View className="p-2">
           <Text
             numberOfLines={1}
             className="text-xs font-semibold text-gray-900 mb-0.5"
+            style={{ textAlign: isRTL ? "right" : "left" }}
           >
             {item.name}
           </Text>
-          <Text numberOfLines={1} className="text-[10px] text-gray-500 mb-1">
+          <Text
+            numberOfLines={1}
+            className="text-[10px] text-gray-500 mb-1"
+            style={{ textAlign: isRTL ? "right" : "left" }}
+          >
             {item.Category}
           </Text>
           <CartInteraction product={item} />
@@ -5497,6 +5822,8 @@ const ProductsScreen = () => {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
 
   const [selectedFilters, setSelectedFilters] = useState({
     category: params.category ? String(params.category) : null,
@@ -5551,9 +5878,21 @@ const ProductsScreen = () => {
     [router, refetch]
   );
 
-  const products = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data) || [];
-  }, [data]);
+  const localizedProducts = useMemo(() => {
+    const allProducts = data?.pages.flatMap((page) => page.data) || [];
+    return allProducts.map((product) => {
+      if (product.locale === currentLanguage) {
+        return product;
+      }
+      const localization = product.localizations?.find(
+        (loc) => loc.locale === currentLanguage
+      );
+      if (localization) {
+        return { ...product, ...localization };
+      }
+      return product;
+    });
+  }, [data, currentLanguage]);
 
   return (
     <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
@@ -5564,7 +5903,7 @@ const ProductsScreen = () => {
         isLoading={isLoading || isFetchingNextPage}
       />
       <FlashList
-        data={isLoading ? Array(9).fill({}) : products}
+        data={isLoading ? Array(9).fill({}) : localizedProducts}
         renderItem={({ item, index }) =>
           isLoading ? (
             <ProductSkeleton index={index} />
@@ -5584,7 +5923,9 @@ const ProductsScreen = () => {
         ListEmptyComponent={
           !isLoading && (
             <View className="p-5 items-center">
-              <Text className="text-gray-500 text-sm">No products found</Text>
+              <Text className="text-gray-500 text-sm">
+                {t("screens.store.noProducts")}
+              </Text>
             </View>
           )
         }

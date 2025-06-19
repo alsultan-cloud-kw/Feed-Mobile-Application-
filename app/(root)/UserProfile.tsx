@@ -6257,6 +6257,296 @@
 
 /********************************** */
 
+// import React, { useCallback, useState } from "react";
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TouchableOpacity,
+//   Image,
+//   ActivityIndicator,
+//   Platform,
+//   RefreshControl,
+//   ScrollView,
+//   Dimensions,
+// } from "react-native";
+// import { router, Stack } from "expo-router";
+// import { Ionicons } from "@expo/vector-icons";
+// import Animated, { FadeIn, FadeInDown, Layout } from "react-native-reanimated";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import Toast from "react-native-toast-message";
+// import { useUserContext } from "../contexts/UserContext";
+// import { LinearGradient } from "expo-linear-gradient";
+
+// const THEME_COLOR = "#10B981";
+// const SCREEN_WIDTH = Dimensions.get("window").width;
+
+// export default function UserProfile() {
+//   const { userData, isLoading, signOutUser, refreshUserData, formatDateTime } =
+//     useUserContext();
+//   const insets = useSafeAreaInsets();
+//   const [refreshing, setRefreshing] = useState(false);
+
+//   const showToast = useCallback(
+//     (type: "success" | "error" | "info", message: string) => {
+//       Toast.show({
+//         type,
+//         text1: message,
+//         position: "top",
+//         visibilityTime: 2000,
+//         topOffset: insets.top + 10,
+//       });
+//     },
+//     [insets.top]
+//   );
+
+//   const handleRefresh = useCallback(async () => {
+//     setRefreshing(true);
+//     try {
+//       await refreshUserData();
+//       showToast("success", "Profile updated");
+//     } catch (error) {
+//       showToast("error", "Failed to refresh profile");
+//     } finally {
+//       setRefreshing(false);
+//     }
+//   }, [refreshUserData, showToast]);
+
+//   const handleSignOut = useCallback(async () => {
+//     try {
+//       await signOutUser();
+//       showToast("success", "Successfully signed out");
+//     } catch (error) {
+//       showToast("error", "Failed to sign out");
+//     }
+//   }, [signOutUser, showToast]);
+
+//   if (isLoading && !userData) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <ActivityIndicator size="large" color={THEME_COLOR} />
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <View style={[styles.container, { paddingTop: insets.top }]}>
+//       {/* <Stack screenOptions={{ headerShown: true }} /> */}
+//       <ScrollView
+//         refreshControl={
+//           <RefreshControl
+//             refreshing={refreshing}
+//             onRefresh={handleRefresh}
+//             tintColor={THEME_COLOR}
+//           />
+//         }
+//         showsVerticalScrollIndicator={false}
+//         contentContainerStyle={styles.scrollContent}
+//       >
+//         <Animated.View entering={FadeIn.duration(400)} style={styles.header}>
+//           <LinearGradient
+//             colors={["rgba(16, 185, 129, 0.1)", "transparent"]}
+//             style={styles.headerGradient}
+//           >
+//             <Image
+//               source={{
+//                 uri:
+//                   userData?.imageUrl ||
+//                   `https://ui-avatars.com/api/?name=${
+//                     userData?.username || "Guest"
+//                   }&background=10B981&color=fff`,
+//               }}
+//               style={styles.profileImage}
+//             />
+//             <Animated.Text
+//               entering={FadeInDown.delay(200)}
+//               style={styles.username}
+//             >
+//               {userData?.username || "Guest User"}
+//             </Animated.Text>
+//             {userData?.email && (
+//               <Animated.Text
+//                 entering={FadeInDown.delay(300)}
+//                 style={styles.email}
+//               >
+//                 {userData.email}
+//               </Animated.Text>
+//             )}
+//             <Animated.Text
+//               entering={FadeInDown.delay(400)}
+//               style={styles.lastLogin}
+//             >
+//               Last Login: {formatDateTime(new Date(userData?.lastLogin || ""))}
+//             </Animated.Text>
+//           </LinearGradient>
+//         </Animated.View>
+
+//         <Animated.View
+//           entering={FadeInDown.delay(500)}
+//           layout={Layout.springify()}
+//           style={styles.menuSection}
+//         >
+//           <TouchableOpacity
+//             style={styles.menuItem}
+//             onPress={() => router.push("/(root)/(tabs)/(more)/(Settings)")}
+//           >
+//             <View style={styles.menuItemContent}>
+//               <Ionicons name="settings-outline" size={24} color={THEME_COLOR} />
+//               <Text style={styles.menuItemText}>Settings</Text>
+//             </View>
+//             <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+//           </TouchableOpacity>
+//           <TouchableOpacity
+//             style={styles.menuItem}
+//             onPress={() =>
+//               router.push("/(root)/(tabs)/(more)/(Settings)/Orders")
+//             }
+//           >
+//             <View style={styles.menuItemContent}>
+//               <Ionicons name="receipt-outline" size={24} color={THEME_COLOR} />
+//               <Text style={styles.menuItemText}>Order History</Text>
+//             </View>
+//             <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+//           </TouchableOpacity>
+//           {userData?.isGuestMode && (
+//             <TouchableOpacity
+//               style={styles.signInPrompt}
+//               onPress={() => router.push("/(root)/(auth)/sign-in")}
+//             >
+//               <Text style={styles.signInPromptText}>
+//                 Sign in to access your full profile
+//               </Text>
+//               <Ionicons name="arrow-forward" size={20} color={THEME_COLOR} />
+//             </TouchableOpacity>
+//           )}
+//         </Animated.View>
+
+//         {!userData?.isGuestMode && (
+//           <TouchableOpacity
+//             style={[styles.signOutButton, isLoading && styles.buttonDisabled]}
+//             onPress={handleSignOut}
+//             disabled={isLoading}
+//           >
+//             {isLoading ? (
+//               <ActivityIndicator color="#fff" />
+//             ) : (
+//               <>
+//                 <Ionicons name="log-out-outline" size={20} color="#fff" />
+//                 <Text style={styles.signOutButtonText}>Sign Out</Text>
+//               </>
+//             )}
+//           </TouchableOpacity>
+//         )}
+//       </ScrollView>
+//       <Toast />
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: "#fff" },
+//   scrollContent: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 24 },
+//   loadingContainer: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "#fff",
+//   },
+//   header: {
+//     width: SCREEN_WIDTH - 32,
+//     borderRadius: 16,
+//     overflow: "hidden",
+//     marginVertical: 16,
+//   },
+//   headerGradient: { padding: 24, alignItems: "center" },
+//   profileImage: {
+//     width: 100,
+//     height: 100,
+//     borderRadius: 50,
+//     marginBottom: 16,
+//     backgroundColor: "#F3F4F6",
+//     borderWidth: 3,
+//     borderColor: "#fff",
+//     ...Platform.select({
+//       ios: {
+//         shadowColor: "#000",
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 8,
+//       },
+//       android: { elevation: 4 },
+//     }),
+//   },
+//   username: {
+//     fontSize: 24,
+//     fontWeight: "700",
+//     color: "#111827",
+//     marginBottom: 4,
+//   },
+//   email: {
+//     fontSize: 16,
+//     color: "#4B5563",
+//     marginBottom: 8,
+//   },
+//   lastLogin: { fontSize: 14, color: "#6B7280" },
+//   menuSection: { gap: 12, marginBottom: 24 },
+//   menuItem: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//     backgroundColor: "#F9FAFB",
+//     padding: 16,
+//     borderRadius: 12,
+//     ...Platform.select({
+//       ios: {
+//         shadowColor: "#000",
+//         shadowOffset: { width: 0, height: 1 },
+//         shadowOpacity: 0.05,
+//         shadowRadius: 4,
+//       },
+//       android: { elevation: 2 },
+//     }),
+//   },
+//   menuItemContent: { flexDirection: "row", alignItems: "center", gap: 12 },
+//   menuItemText: {
+//     fontSize: 16,
+//     color: "#374151",
+//     fontWeight: "500",
+//   },
+//   signInPrompt: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//     backgroundColor: "#ECFDF5",
+//     padding: 16,
+//     borderRadius: 12,
+//     marginTop: 8,
+//   },
+//   signInPromptText: {
+//     fontSize: 14,
+//     color: "#065F46",
+//     fontWeight: "500",
+//   },
+//   signOutButton: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     backgroundColor: "#EF4444",
+//     padding: 16,
+//     borderRadius: 12,
+//     gap: 8,
+//     marginTop: "auto",
+//   },
+//   signOutButtonText: {
+//     color: "#fff",
+//     fontSize: 16,
+//     fontWeight: "600",
+//   },
+//   buttonDisabled: { opacity: 0.7 },
+// });
+
+/*************************************/
+
 import React, { useCallback, useState } from "react";
 import {
   View,
@@ -6321,6 +6611,14 @@ export default function UserProfile() {
     }
   }, [signOutUser, showToast]);
 
+  const handleGoBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push("/(root)/(tabs)"); // Fallback to tabs if no history
+    }
+  }, []);
+
   if (isLoading && !userData) {
     return (
       <View style={styles.loadingContainer}>
@@ -6331,7 +6629,22 @@ export default function UserProfile() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* <Stack screenOptions={{ headerShown: true }} /> */}
+      {/* Custom Header with Back Button */}
+      <Animated.View
+        entering={FadeIn.duration(300)}
+        style={styles.customHeader}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleGoBack}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color="#374151" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={styles.headerPlaceholder} />
+      </Animated.View>
+
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -6445,6 +6758,29 @@ export default function UserProfile() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  customHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#F9FAFB",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  headerPlaceholder: {
+    width: 40, // Same width as back button to center the title
+  },
   scrollContent: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 24 },
   loadingContainer: {
     flex: 1,
