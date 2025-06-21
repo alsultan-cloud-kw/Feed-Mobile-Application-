@@ -86,7 +86,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.mobfeedsapp"
+    namespace 'com.yourcompany.mobfeedsapp'
     defaultConfig {
         applicationId 'com.yourcompany.mobfeedsapp'
         minSdkVersion rootProject.ext.minSdkVersion
