@@ -3988,8 +3988,1078 @@
 // export default ProductDetails;
 
 /*********************************** */
+// Works with @builder.io/react-native-render-html library
+// import React, { useState, useCallback, useEffect } from "react";
+// import {
+//   View,
+//   Text,
+//   Image,
+//   ScrollView,
+//   Pressable,
+//   ActivityIndicator,
+//   useWindowDimensions,
+//   StatusBar,
+//   Platform,
+// } from "react-native";
+// import { useLocalSearchParams, useRouter } from "expo-router";
+// import { MotiView, AnimatePresence } from "moti";
+// import {
+//   useQuery,
+//   useInfiniteQuery,
+//   useQueryClient,
+// } from "@tanstack/react-query";
+// import {
+//   ArrowLeft,
+//   ChevronDown,
+//   ChevronUp,
+//   Minus,
+//   Plus,
+//   ShoppingCart,
+// } from "lucide-react-native";
+// import RenderHtml from "@builder.io/react-native-render-html";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import * as Haptics from "expo-haptics";
+// import { FlashList } from "@shopify/flash-list";
+// import Toast from "react-native-toast-message";
+// import useCartStore from "../../../../../store/cartStore";
+// import {
+//   Product,
+//   fetchProductDetails,
+//   fetchSimilarProducts,
+// } from "../../../../servicies/NewProductsApi";
+// import { shareProduct } from "../../../../Utils/share";
+// import { useTranslation } from "react-i18next";
+// import { useLanguage } from "@/app/contexts/LanguageContext";
 
-import React, { useState, useCallback, useEffect } from "react";
+// const showToast = (type: "success" | "error" | "info", message: string) => {
+//   Toast.show({
+//     type,
+//     text1: message,
+//     position: "top",
+//     visibilityTime: 2000,
+//     topOffset: 60,
+//   });
+// };
+
+// const getBestImageUrl = (item: Product): string | null => {
+//   if (!item?.primaryImage?.[0]) return null;
+//   const formats = item.primaryImage[0].formats;
+//   return (
+//     formats?.large?.url ||
+//     formats?.medium?.url ||
+//     formats?.small?.url ||
+//     formats?.thumbnail?.url ||
+//     item.primaryImage[0].url ||
+//     null
+//   );
+// };
+
+// const QuantityControl = React.memo(
+//   ({ quantity, onQuantityChange, disabled }) => {
+//     return (
+//       <View className="flex-row items-center justify-center space-x-4 bg-green-50 p-2 rounded-xl">
+//         <Pressable
+//           className="p-2 rounded-lg bg-green-100 active:bg-green-200"
+//           onPress={() => onQuantityChange(-1)}
+//           disabled={disabled}
+//           hitSlop={8}
+//         >
+//           <Minus size={20} color="#16A34A" />
+//         </Pressable>
+//         <Text className="text-lg font-semibold text-green-700 min-w-[40px] text-center">
+//           {quantity}
+//         </Text>
+//         <Pressable
+//           className="p-2 rounded-lg bg-green-100 active:bg-green-200"
+//           onPress={() => onQuantityChange(1)}
+//           disabled={disabled}
+//           hitSlop={8}
+//         >
+//           <Plus size={20} color="#16A34A" />
+//         </Pressable>
+//       </View>
+//     );
+//   }
+// );
+
+// const SimilarProductCard = React.memo(({ item, onPress, disabled }) => {
+//   const productImageUrl = getBestImageUrl(item);
+//   const price = item?.price
+//     ? `${Number(item.price).toFixed(3)} KWD`
+//     : "Price not available";
+//   return (
+//     <Pressable
+//       onPress={onPress}
+//       className="mr-3 w-40 bg-white rounded-xl shadow-sm overflow-hidden"
+//       disabled={disabled}
+//     >
+//       <MotiView
+//         from={{ opacity: 0, scale: 0.9 }}
+//         animate={{ opacity: 1, scale: 1 }}
+//         transition={{ type: "spring", damping: 15 }}
+//       >
+//         <Image
+//           source={
+//             productImageUrl
+//               ? { uri: productImageUrl }
+//               : require("../../../../../assets/product-placeholder.png")
+//           }
+//           className="w-full h-40 rounded-t-xl"
+//           resizeMode="cover"
+//           defaultSource={require("../../../../../assets/product-placeholder.png")}
+//         />
+//         <View className="p-2">
+//           <Text
+//             numberOfLines={2}
+//             className="text-sm font-semibold text-gray-800"
+//           >
+//             {item.name}
+//           </Text>
+//           <Text className="text-green-600 font-bold mt-1">{price}</Text>
+//         </View>
+//       </MotiView>
+//     </Pressable>
+//   );
+// });
+
+// const ProductDetails: React.FC = () => {
+//   const { documentId, fromSimilar } = useLocalSearchParams<{
+//     documentId: string;
+//     fromSimilar?: string;
+//   }>();
+//   const router = useRouter();
+//   const insets = useSafeAreaInsets();
+//   const { width } = useWindowDimensions();
+//   const queryClient = useQueryClient();
+//   const addToCart = useCartStore((state) => state.addToCart);
+//   const [quantity, setQuantity] = useState(1);
+//   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+//   const [isNavigating, setIsNavigating] = useState(false);
+//   const { t } = useTranslation();
+//   const { currentLanguage } = useLanguage();
+//   const isRTL = currentLanguage === "ar";
+
+//   const {
+//     data: product,
+//     isLoading,
+//     error,
+//     isError,
+//   } = useQuery({
+//     queryKey: ["product", documentId],
+//     queryFn: async () => {
+//       if (!documentId) throw new Error("Product ID is required");
+//       const data = await fetchProductDetails(documentId);
+//       if (!data) throw new Error("Product not found");
+//       return data;
+//     },
+//     enabled: Boolean(documentId),
+//     retry: 2,
+//     staleTime: 1000 * 60 * 5,
+//   });
+
+//   const {
+//     data: similarProductsData,
+//     fetchNextPage,
+//     hasNextPage,
+//     isFetchingNextPage,
+//   } = useInfiniteQuery({
+//     queryKey: ["similarProducts", product?.Category, documentId],
+//     queryFn: async ({ pageParam = 1 }) => {
+//       if (!product?.Category || !documentId) {
+//         throw new Error("Missing required data for similar products query");
+//       }
+//       return fetchSimilarProducts(product.Category, documentId, pageParam);
+//     },
+//     enabled: Boolean(product?.Category && documentId),
+//     getNextPageParam: (lastPage) => lastPage.nextPage,
+//     retry: 1,
+//   });
+
+//   const getLocalizedProduct = (product: Product) => {
+//     if (product.locale === currentLanguage) {
+//       return product;
+//     }
+//     const localization = product.localizations?.find(
+//       (loc) => loc.locale === currentLanguage
+//     );
+//     if (localization) {
+//       return { ...product, ...localization };
+//     }
+//     return product;
+//   };
+
+//   const localizedProduct = product ? getLocalizedProduct(product) : null;
+//   const localizedSimilarProducts =
+//     similarProductsData?.pages.flatMap((page) =>
+//       page.data.map(getLocalizedProduct)
+//     ) || [];
+
+//   const handleBack = useCallback(() => {
+//     if (fromSimilar) {
+//       router.back();
+//     } else {
+//       router.replace("/(root)/(tabs)/(store)");
+//     }
+//   }, [router, fromSimilar]);
+
+//   const handleQuantityChange = useCallback(async (increment: number) => {
+//     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//     setQuantity((prev) => Math.max(1, prev + increment));
+//   }, []);
+
+//   const handleAddToCart = useCallback(async () => {
+//     if (!localizedProduct) return;
+//     try {
+//       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+//       const imageUrl = getBestImageUrl(localizedProduct);
+//       addToCart({ ...localizedProduct, quantity, imageUrl: imageUrl || "" });
+//       showToast(
+//         "success",
+//         t("screens.productDetails.addedToCart", { name: localizedProduct.name })
+//       );
+//     } catch (error) {
+//       showToast("error", t("screens.productDetails.failedToAddToCart"));
+//     }
+//   }, [localizedProduct, quantity, addToCart, t]);
+
+//   const handleSimilarProductPress = useCallback(
+//     async (productId: string) => {
+//       if (isNavigating) return;
+//       try {
+//         setIsNavigating(true);
+//         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//         await queryClient.prefetchQuery({
+//           queryKey: ["product", productId],
+//           queryFn: () => fetchProductDetails(productId),
+//         });
+//         router.push({
+//           pathname: "/(root)/(tabs)/(store)/store/[documentId]",
+//           params: { documentId: productId, fromSimilar: "true" },
+//         });
+//       } catch (error) {
+//         showToast("error", t("screens.productDetails.failedToLoadProduct"));
+//       } finally {
+//         setIsNavigating(false);
+//       }
+//     },
+//     [queryClient, router, isNavigating, t]
+//   );
+
+//   if (isLoading) {
+//     return (
+//       <View className="flex-1 justify-center items-center bg-white">
+//         <MotiView
+//           from={{ opacity: 0, scale: 0.8 }}
+//           animate={{ opacity: 1, scale: 1 }}
+//           transition={{ type: "spring", damping: 15 }}
+//         >
+//           <ActivityIndicator size="large" color="#4ECB71" />
+//           <Text className="mt-4 text-gray-600 font-medium">
+//             {t("screens.productDetails.loading")}
+//           </Text>
+//         </MotiView>
+//       </View>
+//     );
+//   }
+
+//   if (isError || !localizedProduct) {
+//     return (
+//       <View className="flex-1 justify-center items-center p-4 bg-white">
+//         <MotiView
+//           from={{ opacity: 0, translateY: 20 }}
+//           animate={{ opacity: 1, translateY: 0 }}
+//           transition={{ type: "spring", damping: 15 }}
+//           className="items-center"
+//         >
+//           <Text className="text-lg text-red-500 font-semibold mb-2">
+//             {error instanceof Error
+//               ? error.message
+//               : t("screens.productDetails.failedToLoad")}
+//           </Text>
+//           <Pressable
+//             className="mt-4 px-6 py-3 bg-green-500 rounded-xl flex-row items-center"
+//             onPress={handleBack}
+//           >
+//             <ArrowLeft size={20} color="#FFF" />
+//             <Text
+//               className="text-white font-semibold ml-2"
+//               style={{ textAlign: isRTL ? "right" : "left" }}
+//             >
+//               {t("screens.productDetails.returnToStore")}
+//             </Text>
+//           </Pressable>
+//         </MotiView>
+//       </View>
+//     );
+//   }
+
+//   const mainImageUrl = getBestImageUrl(localizedProduct);
+//   const price = localizedProduct.price
+//     ? `${Number(localizedProduct.price).toFixed(3)} KWD`
+//     : t("screens.productDetails.priceNotAvailable");
+
+//   return (
+//     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+//       <StatusBar barStyle="dark-content" />
+//       <AnimatePresence>
+//         {isNavigating && (
+//           <MotiView
+//             from={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             className="absolute inset-0 bg-black/20 z-50 items-center justify-center"
+//           >
+//             <ActivityIndicator size="large" color="#4ECB71" />
+//           </MotiView>
+//         )}
+//       </AnimatePresence>
+//       <ScrollView
+//         className="flex-1"
+//         showsVerticalScrollIndicator={false}
+//         bounces={Platform.OS === "ios"}
+//       >
+//         <MotiView
+//           from={{ opacity: 0, translateY: 50 }}
+//           animate={{ opacity: 1, translateY: 0 }}
+//           transition={{ type: "spring", damping: 15 }}
+//         >
+//           <View className="p-4 flex-row items-center justify-between">
+//             <Pressable
+//               className="p-2 rounded-xl bg-green-50 active:bg-green-100"
+//               onPress={handleBack}
+//               disabled={isNavigating}
+//             >
+//               <ArrowLeft size={24} color="#16A34A" />
+//             </Pressable>
+//             <View className="flex-row items-center">
+//               <Pressable
+//                 className="p-2 rounded-xl bg-green-50 active:bg-green-100"
+//                 onPress={() =>
+//                   shareProduct(
+//                     localizedProduct.documentId,
+//                     localizedProduct.name
+//                   )
+//                 }
+//                 disabled={isNavigating}
+//               >
+//                 <Text
+//                   className="text-green-600 font-medium"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.share")}
+//                 </Text>
+//               </Pressable>
+//             </View>
+//           </View>
+//           <MotiView
+//             from={{ scale: 0.95, opacity: 0 }}
+//             animate={{ scale: 1, opacity: 1 }}
+//             transition={{ type: "spring", damping: 15 }}
+//             className="relative"
+//           >
+//             <Image
+//               source={
+//                 mainImageUrl
+//                   ? { uri: mainImageUrl }
+//                   : require("../../../../../assets/product-placeholder.png")
+//               }
+//               className="w-full aspect-square bg-gray-50"
+//               resizeMode="cover"
+//               defaultSource={require("../../../../../assets/product-placeholder.png")}
+//             />
+//             <View className="absolute bottom-4 right-4 px-4 py-2 rounded-xl bg-green-500/90 backdrop-blur-sm">
+//               <Text className="text-white font-bold text-xl">{price}</Text>
+//             </View>
+//           </MotiView>
+//           <View className="p-4">
+//             <View className="flex-row items-center justify-between mb-2">
+//               <Text
+//                 className="text-sm font-medium text-green-600"
+//                 style={{ textAlign: isRTL ? "right" : "left" }}
+//               >
+//                 {localizedProduct.Category} • {localizedProduct.Subcategory}
+//               </Text>
+//               <View className="px-3 py-1 bg-green-100 rounded-full">
+//                 <Text className="text-green-700 text-sm">
+//                   {t("screens.productDetails.inStock")}
+//                 </Text>
+//               </View>
+//             </View>
+//             <Text
+//               className="text-2xl font-bold text-gray-900 mb-4"
+//               style={{ textAlign: isRTL ? "right" : "left" }}
+//             >
+//               {localizedProduct.name}
+//             </Text>
+//             <Pressable
+//               onPress={() => setDescriptionExpanded((prev) => !prev)}
+//               className="mb-4"
+//             >
+//               <View className="flex-row items-center justify-between p-4 bg-green-50 rounded-xl">
+//                 <Text
+//                   className="font-medium text-gray-800"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.description")}
+//                 </Text>
+//                 {descriptionExpanded ? (
+//                   <ChevronUp size={24} color="#16A34A" />
+//                 ) : (
+//                   <ChevronDown size={24} color="#16A34A" />
+//                 )}
+//               </View>
+//             </Pressable>
+//             <AnimatePresence>
+//               {descriptionExpanded && (
+//                 <MotiView
+//                   from={{ opacity: 0, height: 0 }}
+//                   animate={{ opacity: 1, height: "auto" }}
+//                   exit={{ opacity: 0, height: 0 }}
+//                   transition={{ type: "timing", duration: 300 }}
+//                   className="bg-white rounded-xl p-4 mb-4"
+//                 >
+//                   <RenderHtml
+//                     contentWidth={width - 32}
+//                     source={{ html: localizedProduct.description || "" }}
+//                     enableExperimentalMarginCollapsing
+//                     baseStyle={{
+//                       fontSize: 16,
+//                       lineHeight: 24,
+//                       color: "#374151",
+//                       fontFamily: Platform.select({
+//                         ios: "System",
+//                         android: "Roboto",
+//                       }),
+//                       textAlign: isRTL ? "right" : "left",
+//                     }}
+//                   />
+//                 </MotiView>
+//               )}
+//             </AnimatePresence>
+//             <View className="mb-6">
+//               <QuantityControl
+//                 quantity={quantity}
+//                 onQuantityChange={handleQuantityChange}
+//                 disabled={isNavigating}
+//               />
+//             </View>
+//             {localizedSimilarProducts.length > 0 && (
+//               <View className="mt-6">
+//                 <Text
+//                   className="text-xl font-bold text-gray-900 mb-3"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.similarProducts")}
+//                 </Text>
+//                 <FlashList
+//                   data={localizedSimilarProducts}
+//                   renderItem={({ item }) => (
+//                     <SimilarProductCard
+//                       item={item}
+//                       onPress={() => handleSimilarProductPress(item.documentId)}
+//                       disabled={isNavigating}
+//                     />
+//                   )}
+//                   keyExtractor={(item) => item.id.toString()}
+//                   horizontal
+//                   estimatedItemSize={160}
+//                   showsHorizontalScrollIndicator={false}
+//                   onEndReached={() =>
+//                     hasNextPage && !isFetchingNextPage && fetchNextPage()
+//                   }
+//                   onEndReachedThreshold={0.5}
+//                   ListFooterComponent={
+//                     isFetchingNextPage ? (
+//                       <View className="justify-center px-4">
+//                         <ActivityIndicator size="small" color="#4ECB71" />
+//                       </View>
+//                     ) : null
+//                   }
+//                 />
+//               </View>
+//             )}
+//           </View>
+//         </MotiView>
+//       </ScrollView>
+//       <View className="px-4 pb-4 pt-2 border-t border-gray-100">
+//         <Pressable
+//           className="flex-row items-center justify-center bg-gray-950 p-4 rounded-xl active:bg-gray-800"
+//           onPress={handleAddToCart}
+//           disabled={!localizedProduct.price || isNavigating}
+//         >
+//           <ShoppingCart size={24} color="#fff" />
+//           <Text
+//             className="text-lg font-semibold text-white ml-2"
+//             style={{ textAlign: isRTL ? "right" : "left" }}
+//           >
+//             {t("screens.productDetails.addToCart")}
+//           </Text>
+//         </Pressable>
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default ProductDetails;
+
+/************************************* */
+
+// import React, { useState, useCallback, useRef } from "react";
+// import {
+//   View,
+//   Text,
+//   Image,
+//   ScrollView,
+//   Pressable,
+//   ActivityIndicator,
+//   useWindowDimensions,
+//   StatusBar,
+//   Platform,
+// } from "react-native";
+// import { useLocalSearchParams, useRouter } from "expo-router";
+// import { MotiView, AnimatePresence } from "moti";
+// import {
+//   useQuery,
+//   useInfiniteQuery,
+//   useQueryClient,
+// } from "@tanstack/react-query";
+// import {
+//   ArrowLeft,
+//   ChevronDown,
+//   ChevronUp,
+//   Minus,
+//   Plus,
+//   ShoppingCart,
+// } from "lucide-react-native";
+// import { WebView } from "react-native-webview";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import * as Haptics from "expo-haptics";
+// import { FlashList } from "@shopify/flash-list";
+// import Toast from "react-native-toast-message";
+// import useCartStore from "../../../../../store/cartStore";
+// import {
+//   Product,
+//   fetchProductDetails,
+//   fetchSimilarProducts,
+// } from "../../../../servicies/NewProductsApi";
+// import { shareProduct } from "../../../../Utils/share";
+// import { useTranslation } from "react-i18next";
+// import { useLanguage } from "@/app/contexts/LanguageContext";
+
+// const showToast = (type: "success" | "error" | "info", message: string) => {
+//   Toast.show({
+//     type,
+//     text1: message,
+//     position: "top",
+//     visibilityTime: 2000,
+//     topOffset: 60,
+//   });
+// };
+
+// const getBestImageUrl = (item: Product): string | null => {
+//   if (!item?.primaryImage?.[0]) return null;
+//   const formats = item.primaryImage[0].formats;
+//   return (
+//     formats?.large?.url ||
+//     formats?.medium?.url ||
+//     formats?.small?.url ||
+//     formats?.thumbnail?.url ||
+//     item.primaryImage[0].url ||
+//     null
+//   );
+// };
+
+// const QuantityControl = React.memo(
+//   ({ quantity, onQuantityChange, disabled }) => {
+//     return (
+//       <View className="flex-row items-center justify-center space-x-4 bg-green-50 p-2 rounded-xl">
+//         <Pressable
+//           className="p-2 rounded-lg bg-green-100 active:bg-green-200"
+//           onPress={() => onQuantityChange(-1)}
+//           disabled={disabled}
+//           hitSlop={8}
+//         >
+//           <Minus size={20} color="#16A34A" />
+//         </Pressable>
+//         <Text className="text-lg font-semibold text-green-700 min-w-[40px] text-center">
+//           {quantity}
+//         </Text>
+//         <Pressable
+//           className="p-2 rounded-lg bg-green-100 active:bg-green-200"
+//           onPress={() => onQuantityChange(1)}
+//           disabled={disabled}
+//           hitSlop={8}
+//         >
+//           <Plus size={20} color="#16A34A" />
+//         </Pressable>
+//       </View>
+//     );
+//   }
+// );
+
+// const SimilarProductCard = React.memo(({ item, onPress, disabled }) => {
+//   const productImageUrl = getBestImageUrl(item);
+//   const price = item?.price
+//     ? `${Number(item.price).toFixed(3)} KWD`
+//     : "Price not available";
+//   return (
+//     <Pressable
+//       onPress={onPress}
+//       className="mr-3 w-40 bg-white rounded-xl shadow-sm overflow-hidden"
+//       disabled={disabled}
+//     >
+//       <MotiView
+//         from={{ opacity: 0, scale: 0.9 }}
+//         animate={{ opacity: 1, scale: 1 }}
+//         transition={{ type: "spring", damping: 15 }}
+//       >
+//         <Image
+//           source={
+//             productImageUrl
+//               ? { uri: productImageUrl }
+//               : require("../../../../../assets/product-placeholder.png")
+//           }
+//           className="w-full h-40 rounded-t-xl"
+//           resizeMode="cover"
+//           defaultSource={require("../../../../../assets/product-placeholder.png")}
+//         />
+//         <View className="p-2">
+//           <Text
+//             numberOfLines={2}
+//             className="text-sm font-semibold text-gray-800"
+//           >
+//             {item.name}
+//           </Text>
+//           <Text className="text-green-600 font-bold mt-1">{price}</Text>
+//         </View>
+//       </MotiView>
+//     </Pressable>
+//   );
+// });
+
+// const ProductDetails: React.FC = () => {
+//   const { documentId, fromSimilar } = useLocalSearchParams<{
+//     documentId: string;
+//     fromSimilar?: string;
+//   }>();
+//   const router = useRouter();
+//   const insets = useSafeAreaInsets();
+//   const { width } = useWindowDimensions();
+//   const queryClient = useQueryClient();
+//   const addToCart = useCartStore((state) => state.addToCart);
+//   const [quantity, setQuantity] = useState(1);
+//   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+//   const [isNavigating, setIsNavigating] = useState(false);
+//   const { t } = useTranslation();
+//   const { currentLanguage } = useLanguage();
+//   const isRTL = currentLanguage === "ar";
+//   const webViewRef = useRef<WebView>(null);
+//   const [webViewHeight, setWebViewHeight] = useState(0);
+
+//   const {
+//     data: product,
+//     isLoading,
+//     error,
+//     isError,
+//   } = useQuery({
+//     queryKey: ["product", documentId],
+//     queryFn: async () => {
+//       if (!documentId) throw new Error("Product ID is required");
+//       const data = await fetchProductDetails(documentId);
+//       if (!data) throw new Error("Product not found");
+//       return data;
+//     },
+//     enabled: Boolean(documentId),
+//     retry: 2,
+//     staleTime: 1000 * 60 * 5,
+//   });
+
+//   const {
+//     data: similarProductsData,
+//     fetchNextPage,
+//     hasNextPage,
+//     isFetchingNextPage,
+//   } = useInfiniteQuery({
+//     queryKey: ["similarProducts", product?.Category, documentId],
+//     queryFn: async ({ pageParam = 1 }) => {
+//       if (!product?.Category || !documentId) {
+//         throw new Error("Missing required data for similar products query");
+//       }
+//       return fetchSimilarProducts(product.Category, documentId, pageParam);
+//     },
+//     enabled: Boolean(product?.Category && documentId),
+//     getNextPageParam: (lastPage) => lastPage.nextPage,
+//     retry: 1,
+//   });
+
+//   const getLocalizedProduct = (product: Product) => {
+//     if (product.locale === currentLanguage) {
+//       return product;
+//     }
+//     const localization = product.localizations?.find(
+//       (loc) => loc.locale === currentLanguage
+//     );
+//     if (localization) {
+//       return { ...product, ...localization };
+//     }
+//     return product;
+//   };
+
+//   const localizedProduct = product ? getLocalizedProduct(product) : null;
+//   const localizedSimilarProducts =
+//     similarProductsData?.pages.flatMap((page) =>
+//       page.data.map(getLocalizedProduct)
+//     ) || [];
+
+//   const handleBack = useCallback(() => {
+//     if (fromSimilar) {
+//       router.back();
+//     } else {
+//       router.replace("/(root)/(tabs)/(store)");
+//     }
+//   }, [router, fromSimilar]);
+
+//   const handleQuantityChange = useCallback(async (increment: number) => {
+//     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//     setQuantity((prev) => Math.max(1, prev + increment));
+//   }, []);
+
+//   const handleAddToCart = useCallback(async () => {
+//     if (!localizedProduct) return;
+//     try {
+//       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+//       const imageUrl = getBestImageUrl(localizedProduct);
+//       addToCart({ ...localizedProduct, quantity, imageUrl: imageUrl || "" });
+//       showToast(
+//         "success",
+//         t("screens.productDetails.addedToCart", { name: localizedProduct.name })
+//       );
+//     } catch (error) {
+//       showToast("error", t("screens.productDetails.failedToAddToCart"));
+//     }
+//   }, [localizedProduct, quantity, addToCart, t]);
+
+//   const handleSimilarProductPress = useCallback(
+//     async (productId: string) => {
+//       if (isNavigating) return;
+//       try {
+//         setIsNavigating(true);
+//         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//         await queryClient.prefetchQuery({
+//           queryKey: ["product", productId],
+//           queryFn: () => fetchProductDetails(productId),
+//         });
+//         router.push({
+//           pathname: "/(root)/(tabs)/(store)/store/[documentId]",
+//           params: { documentId: productId, fromSimilar: "true" },
+//         });
+//       } catch (error) {
+//         showToast("error", t("screens.productDetails.failedToLoadProduct"));
+//       } finally {
+//         setIsNavigating(false);
+//       }
+//     },
+//     [queryClient, router, isNavigating, t]
+//   );
+
+//   const injectedJavaScript = `
+//     window.ReactNativeWebView.postMessage(document.getElementById('content').offsetHeight);
+//   `;
+
+//   const htmlContent = localizedProduct
+//     ? `
+//       <html>
+//         <head>
+//           <style>
+//             body {
+//               margin: 0;
+//               padding: 0;
+//             }
+//             #content {
+//               font-family: '${Platform.select({
+//                 ios: "System",
+//                 android: "Roboto",
+//               })}';
+//               direction: ${isRTL ? "rtl" : "ltr"};
+//               text-align: ${isRTL ? "right" : "left"};
+//               color: #374151;
+//               font-size: 16px;
+//               line-height: 24px;
+//               padding: 10px;
+//             }
+//             #content img {
+//               max-width: 100%;
+//               height: auto;
+//               display: block;
+//               margin: 0 auto;
+//             }
+//           </style>
+//         </head>
+//         <body>
+//           <div id="content">
+//             ${localizedProduct.description || ""}
+//           </div>
+//         </body>
+//       </html>
+//     `
+//     : "";
+
+//   if (isLoading) {
+//     return (
+//       <View className="flex-1 justify-center items-center bg-white">
+//         <MotiView
+//           from={{ opacity: 0, scale: 0.8 }}
+//           animate={{ opacity: 1, scale: 1 }}
+//           transition={{ type: "spring", damping: 15 }}
+//         >
+//           <ActivityIndicator size="large" color="#4ECB71" />
+//           <Text className="mt-4 text-gray-600 font-medium">
+//             {t("screens.productDetails.loading")}
+//           </Text>
+//         </MotiView>
+//       </View>
+//     );
+//   }
+
+//   if (isError || !localizedProduct) {
+//     return (
+//       <View className="flex-1 justify-center items-center p-4 bg-white">
+//         <MotiView
+//           from={{ opacity: 0, translateY: 20 }}
+//           animate={{ opacity: 1, translateY: 0 }}
+//           transition={{ type: "spring", damping: 15 }}
+//           className="items-center"
+//         >
+//           <Text className="text-lg text-red-500 font-semibold mb-2">
+//             {error instanceof Error
+//               ? error.message
+//               : t("screens.productDetails.failedToLoad")}
+//           </Text>
+//           <Pressable
+//             className="mt-4 px-6 py-3 bg-green-500 rounded-xl flex-row items-center"
+//             onPress={handleBack}
+//           >
+//             <ArrowLeft size={20} color="#FFF" />
+//             <Text
+//               className="text-white font-semibold ml-2"
+//               style={{ textAlign: isRTL ? "right" : "left" }}
+//             >
+//               {t("screens.productDetails.returnToStore")}
+//             </Text>
+//           </Pressable>
+//         </MotiView>
+//       </View>
+//     );
+//   }
+
+//   const mainImageUrl = getBestImageUrl(localizedProduct);
+//   const price = localizedProduct.price
+//     ? `${Number(localizedProduct.price).toFixed(3)} KWD`
+//     : t("screens.productDetails.priceNotAvailable");
+
+//   return (
+//     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+//       <StatusBar barStyle="dark-content" />
+//       <AnimatePresence>
+//         {isNavigating && (
+//           <MotiView
+//             from={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             exit={{ opacity: 0 }}
+//             className="absolute inset-0 bg-black/20 z-50 items-center justify-center"
+//           >
+//             <ActivityIndicator size="large" color="#4ECB71" />
+//           </MotiView>
+//         )}
+//       </AnimatePresence>
+//       <ScrollView
+//         className="flex-1"
+//         showsVerticalScrollIndicator={false}
+//         bounces={Platform.OS === "ios"}
+//       >
+//         <MotiView
+//           from={{ opacity: 0, translateY: 50 }}
+//           animate={{ opacity: 1, translateY: 0 }}
+//           transition={{ type: "spring", damping: 15 }}
+//         >
+//           <View className="p-4 flex-row items-center justify-between">
+//             <Pressable
+//               className="p-2 rounded-xl bg-green-50 active:bg-green-100"
+//               onPress={handleBack}
+//               disabled={isNavigating}
+//             >
+//               <ArrowLeft size={24} color="#16A34A" />
+//             </Pressable>
+//             <View className="flex-row items-center">
+//               <Pressable
+//                 className="p-2 rounded-xl bg-green-50 active:bg-green-100"
+//                 onPress={() =>
+//                   shareProduct(
+//                     localizedProduct.documentId,
+//                     localizedProduct.name
+//                   )
+//                 }
+//                 disabled={isNavigating}
+//               >
+//                 <Text
+//                   className="text-green-600 font-medium"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.share")}
+//                 </Text>
+//               </Pressable>
+//             </View>
+//           </View>
+//           <MotiView
+//             from={{ scale: 0.95, opacity: 0 }}
+//             animate={{ scale: 1, opacity: 1 }}
+//             transition={{ type: "spring", damping: 15 }}
+//             className="relative"
+//           >
+//             <Image
+//               source={
+//                 mainImageUrl
+//                   ? { uri: mainImageUrl }
+//                   : require("../../../../../assets/product-placeholder.png")
+//               }
+//               className="w-full aspect-square bg-gray-50"
+//               resizeMode="cover"
+//               defaultSource={require("../../../../../assets/product-placeholder.png")}
+//             />
+//             <View className="absolute bottom-4 right-4 px-4 py-2 rounded-xl bg-green-500/90 backdrop-blur-sm">
+//               <Text className="text-white font-bold text-xl">{price}</Text>
+//             </View>
+//           </MotiView>
+//           <View className="p-4">
+//             <View className="flex-row items-center justify-between mb-2">
+//               <Text
+//                 className="text-sm font-medium text-green-600"
+//                 style={{ textAlign: isRTL ? "right" : "left" }}
+//               >
+//                 {localizedProduct.Category} • {localizedProduct.Subcategory}
+//               </Text>
+//               <View className="px-3 py-1 bg-green-100 rounded-full">
+//                 <Text className="text-green-700 text-sm">
+//                   {t("screens.productDetails.inStock")}
+//                 </Text>
+//               </View>
+//             </View>
+//             <Text
+//               className="text-2xl font-bold text-gray-900 mb-4"
+//               style={{ textAlign: isRTL ? "right" : "left" }}
+//             >
+//               {localizedProduct.name}
+//             </Text>
+//             <Pressable
+//               onPress={() => setDescriptionExpanded((prev) => !prev)}
+//               className="mb-4"
+//             >
+//               <View className="flex-row items-center justify-between p-4 bg-green-50 rounded-xl">
+//                 <Text
+//                   className="font-medium text-gray-800"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.description")}
+//                 </Text>
+//                 {descriptionExpanded ? (
+//                   <ChevronUp size={24} color="#16A34A" />
+//                 ) : (
+//                   <ChevronDown size={24} color="#16A34A" />
+//                 )}
+//               </View>
+//             </Pressable>
+//             <AnimatePresence>
+//               {descriptionExpanded && (
+//                 <MotiView
+//                   from={{ opacity: 0, height: 0 }}
+//                   animate={{ opacity: 1, height: "auto" }}
+//                   exit={{ opacity: 0, height: 0 }}
+//                   transition={{ type: "timing", duration: 300 }}
+//                   className="bg-white rounded-xl p-4 mb-4"
+//                 >
+//                   <WebView
+//                     ref={webViewRef}
+//                     source={{ html: htmlContent }}
+//                     style={{ width: width - 32, height: webViewHeight }}
+//                     onMessage={(event) => {
+//                       setWebViewHeight(Number(event.nativeEvent.data));
+//                     }}
+//                     injectedJavaScript={injectedJavaScript}
+//                     scalesPageToFit={false}
+//                     scrollEnabled={false}
+//                   />
+//                 </MotiView>
+//               )}
+//             </AnimatePresence>
+//             <View className="mb-6">
+//               <QuantityControl
+//                 quantity={quantity}
+//                 onQuantityChange={handleQuantityChange}
+//                 disabled={isNavigating}
+//               />
+//             </View>
+//             {localizedSimilarProducts.length > 0 && (
+//               <View className="mt-6">
+//                 <Text
+//                   className="text-xl font-bold text-gray-900 mb-3"
+//                   style={{ textAlign: isRTL ? "right" : "left" }}
+//                 >
+//                   {t("screens.productDetails.similarProducts")}
+//                 </Text>
+//                 <FlashList
+//                   data={localizedSimilarProducts}
+//                   renderItem={({ item }) => (
+//                     <SimilarProductCard
+//                       item={item}
+//                       onPress={() => handleSimilarProductPress(item.documentId)}
+//                       disabled={isNavigating}
+//                     />
+//                   )}
+//                   keyExtractor={(item) => item.id.toString()}
+//                   horizontal
+//                   estimatedItemSize={160}
+//                   showsHorizontalScrollIndicator={false}
+//                   onEndReached={() =>
+//                     hasNextPage && !isFetchingNextPage && fetchNextPage()
+//                   }
+//                   onEndReachedThreshold={0.5}
+//                   ListFooterComponent={
+//                     isFetchingNextPage ? (
+//                       <View className="justify-center px-4">
+//                         <ActivityIndicator size="small" color="#4ECB71" />
+//                       </View>
+//                     ) : null
+//                   }
+//                 />
+//               </View>
+//             )}
+//           </View>
+//         </MotiView>
+//       </ScrollView>
+//       <View className="px-4 pb-4 pt-2 border-t border-gray-100">
+//         <Pressable
+//           className="flex-row items-center justify-center bg-gray-950 p-4 rounded-xl active:bg-gray-800"
+//           onPress={handleAddToCart}
+//           disabled={!localizedProduct.price || isNavigating}
+//         >
+//           <ShoppingCart size={24} color="#fff" />
+//           <Text
+//             className="text-lg font-semibold text-white ml-2"
+//             style={{ textAlign: isRTL ? "right" : "left" }}
+//           >
+//             {t("screens.productDetails.addToCart")}
+//           </Text>
+//         </Pressable>
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default ProductDetails;
+
+/********************************/
+
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -4016,7 +5086,7 @@ import {
   Plus,
   ShoppingCart,
 } from "lucide-react-native";
-import RenderHtml from "@builder.io/react-native-render-html";
+import { WebView } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { FlashList } from "@shopify/flash-list";
@@ -4028,8 +5098,7 @@ import {
   fetchSimilarProducts,
 } from "../../../../servicies/NewProductsApi";
 import { shareProduct } from "../../../../Utils/share";
-import { useTranslation } from "react-i18next";
-import { useLanguage } from "@/app/contexts/LanguageContext";
+import useTranslate from "../../../../hooks/useTranslate";
 
 const showToast = (type: "success" | "error" | "info", message: string) => {
   Toast.show({
@@ -4135,9 +5204,9 @@ const ProductDetails: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const { t } = useTranslation();
-  const { currentLanguage } = useLanguage();
-  const isRTL = currentLanguage === "ar";
+  const { translate: t, isRTL, currentLanguage } = useTranslate();
+  const webViewRef = useRef<WebView>(null);
+  const [webViewHeight, setWebViewHeight] = useState(0);
 
   const {
     data: product,
@@ -4244,6 +5313,48 @@ const ProductDetails: React.FC = () => {
     },
     [queryClient, router, isNavigating, t]
   );
+
+  const injectedJavaScript = `
+    window.ReactNativeWebView.postMessage(document.getElementById('content').offsetHeight);
+  `;
+
+  const htmlContent = localizedProduct
+    ? `
+      <html>
+        <head>
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            #content {
+              font-family: '${Platform.select({
+                ios: "System",
+                android: "Roboto",
+              })}';
+              direction: ${isRTL ? "rtl" : "ltr"};
+              text-align: ${isRTL ? "right" : "left"};
+              color: #374151;
+              font-size: 16px;
+              line-height: 24px;
+              padding: 10px;
+            }
+            #content img {
+              max-width: 100%;
+              height: auto;
+              display: block;
+              margin: 0 auto;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="content">
+            ${localizedProduct.description || ""}
+          </div>
+        </body>
+      </html>
+    `
+    : "";
 
   if (isLoading) {
     return (
@@ -4418,20 +5529,16 @@ const ProductDetails: React.FC = () => {
                   transition={{ type: "timing", duration: 300 }}
                   className="bg-white rounded-xl p-4 mb-4"
                 >
-                  <RenderHtml
-                    contentWidth={width - 32}
-                    source={{ html: localizedProduct.description || "" }}
-                    enableExperimentalMarginCollapsing
-                    baseStyle={{
-                      fontSize: 16,
-                      lineHeight: 24,
-                      color: "#374151",
-                      fontFamily: Platform.select({
-                        ios: "System",
-                        android: "Roboto",
-                      }),
-                      textAlign: isRTL ? "right" : "left",
+                  <WebView
+                    ref={webViewRef}
+                    source={{ html: htmlContent }}
+                    style={{ width: width - 32, height: webViewHeight }}
+                    onMessage={(event) => {
+                      setWebViewHeight(Number(event.nativeEvent.data));
                     }}
+                    injectedJavaScript={injectedJavaScript}
+                    scalesPageToFit={false}
+                    scrollEnabled={false}
                   />
                 </MotiView>
               )}

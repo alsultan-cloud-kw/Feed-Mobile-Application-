@@ -14,7 +14,6 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@builder.io/react-native-render-html": "^6.3.4",
     "@clerk/clerk-expo": "^2.7.8",
     "@clerk/types": "^4.44.0",
     "@expo/config-plugins": "~9.0.0",

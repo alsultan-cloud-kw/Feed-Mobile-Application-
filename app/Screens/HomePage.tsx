@@ -4036,10 +4036,10 @@ export default function HomePage() {
               key: "gridPopularProducts",
               component: <GridOfPopularProducts products={data.products} />,
             },
-            {
-              key: "aboutUs",
-              component: <AboutSection />,
-            },
+            // {
+            //   key: "aboutUs",
+            //   component: <AboutSection />,
+            // },
             {
               key: "blogs",
               component: <BlogSection blogs={data.blogs} />,

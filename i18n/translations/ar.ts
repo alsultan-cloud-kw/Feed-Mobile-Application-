@@ -18,6 +18,20 @@ export default {
     // Other common translations
   },
   screens: {
+    productDetails: {
+      loading: "جارٍ تحميل المنتج...",
+      failedToLoad: "فشل في تحميل تفاصيل المنتج",
+      returnToStore: "العودة إلى المتجر",
+      share: "مشاركة",
+      description: "الوصف",
+      inStock: "متوفر",
+      priceNotAvailable: "السعر غير متوفر",
+      addedToCart: "تمت إضافة {name} إلى السلة",
+      failedToAddToCart: "فشل في إضافة المنتج إلى السلة",
+      failedToLoadProduct: "فشل في تحميل المنتج",
+      similarProducts: "منتجات مماثلة",
+      addToCart: "أضف إلى السلة",
+    },
     more: {
       settings: {
         title: "الإعدادات وإمكانية الوصول",
@@ -381,20 +395,6 @@ export default {
           successMessage: "تم إرسال الرسالة بنجاح!",
           errorMessage: "فشل في إرسال الرسالة. حاول مرة اخرى.",
         },
-      },
-      productDetails: {
-        loading: "جارٍ تحميل المنتج...",
-        failedToLoad: "فشل في تحميل تفاصيل المنتج",
-        returnToStore: "العودة إلى المتجر",
-        share: "مشاركة",
-        description: "الوصف",
-        inStock: "متوفر",
-        priceNotAvailable: "السعر غير متوفر",
-        addedToCart: "تمت إضافة {name} إلى السلة",
-        failedToAddToCart: "فشل في إضافة المنتج إلى السلة",
-        failedToLoadProduct: "فشل في تحميل المنتج",
-        similarProducts: "منتجات مماثلة",
-        addToCart: "أضف إلى السلة",
       },
     },
   },
