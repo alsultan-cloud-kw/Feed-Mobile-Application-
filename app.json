@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.mobfeedsapp",
+      "bundleIdentifier": "com.alsultanco.mobfeedsapp",
       "buildNumber": "2",
       "infoPlist": {
         "CFBundleURLTypes": [
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.yourcompany.mobfeedsapp",
+      "package": "com.alsultanco.mobfeedsapp",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",

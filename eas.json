@@ -22,6 +22,7 @@
       "ios": {
         "simulator": true
       },
+      "autoIncrement": true,
       "env": {
         "ENVIRONMENT": "preview"
       }
@@ -33,6 +34,7 @@
       "ios": {
         "simulator": false
       },
+      "autoIncrement": true,
       "env": {
         "ENVIRONMENT": "production"
       }
